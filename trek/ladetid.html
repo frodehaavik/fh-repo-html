@@ -24,6 +24,11 @@
       flex-direction: column;
       justify-content: center;
       padding: 20px;
+      max-width: 400px;
+      margin: auto;
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
     }
 
     h2 {
@@ -42,6 +47,8 @@
       margin-top: 5px;
       margin-bottom: 10px;
       font-size: 1em;
+      border: 1px solid #ccc;
+      border-radius: 4px;
     }
 
     button {
@@ -54,12 +61,18 @@
       border-radius: 5px;
       cursor: pointer;
       margin-top: 10px;
+      transition: background-color 0.3s ease;
+    }
+
+    button:hover {
+      background-color: #225bb5;
     }
 
     #result {
       margin-top: 20px;
       font-weight: bold;
       text-align: center;
+      min-height: 30px;
     }
   </style>
 </head>
@@ -102,11 +115,8 @@
         return;
       }
 
-      // Automatisk sikkerhetsmargin (5 % reduksjon av ladet intervallet)
-      const safetyFactor = 0.12; // 12 %
-      const adjustedTo = to - (to - from) * safetyFactor;
-
-      const neededWh = batteryWh * ((adjustedTo - from) / 100);
+      const efficiency = 0.96; // 96 % effektivitet/sikkerhetsmargin
+      const neededWh = batteryWh * ((to - from) / 100) * efficiency;
       const chargeTimeHours = neededWh / chargePower;
       const hours = Math.floor(chargeTimeHours);
       const minutes = Math.round((chargeTimeHours - hours) * 60);
