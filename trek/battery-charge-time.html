@@ -102,14 +102,17 @@
         return;
       }
 
-      const neededWh = batteryWh * ((to - from) / 100);
+      // Automatisk sikkerhetsmargin (5 % reduksjon av ladet intervallet)
+      const safetyFactor = 0.05; // 5 %
+      const adjustedTo = to - (to - from) * safetyFactor;
+
+      const neededWh = batteryWh * ((adjustedTo - from) / 100);
       const chargeTimeHours = neededWh / chargePower;
       const hours = Math.floor(chargeTimeHours);
       const minutes = Math.round((chargeTimeHours - hours) * 60);
 
-      document.getElementById(
-        "result"
-      ).innerText = `Estimert ladetid: ${hours} t ${minutes} min`;
+      document.getElementById("result").innerText =
+        `Estimert ladetid: ${hours} t ${minutes} min (justert for overlading)`;
     }
   </script>
 </body>
