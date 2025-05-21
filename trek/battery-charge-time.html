@@ -103,7 +103,7 @@
       }
 
       // Automatisk sikkerhetsmargin (5 % reduksjon av ladet intervallet)
-      const safetyFactor = 0.05; // 5 %
+      const safetyFactor = 0.12; // 12 %
       const adjustedTo = to - (to - from) * safetyFactor;
 
       const neededWh = batteryWh * ((adjustedTo - from) / 100);
