@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ladetidkalkulator for Elbil</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 20px;
+      background-color: #f4f4f4;
+    }
+    .container {
+      max-width: 480px;
+      margin: 0 auto;
+      background: white;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 0 12px rgba(0,0,0,0.1);
+    }
+    h2 {
+      text-align: center;
+    }
+    label {
+      display: block;
+      margin-top: 16px;
+      font-weight: bold;
+    }
+    input {
+      width: 100%;
+      padding: 10px;
+      margin-top: 6px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      font-size: 16px;
+    }
+    button {
+      width: 100%;
+      padding: 12px;
+      margin-top: 24px;
+      background-color: #007BFF;
+      color: white;
+      font-size: 16px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #0056b3;
+    }
+    #result {
+      margin-top: 20px;
+      text-align: center;
+      font-weight: bold;
+      font-size: 18px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Ladetidkalkulator</h2>
+    <form id="kalkulator">
+      <label for="batteri">Batteristørrelse (kWh):</label>
+      <input type="number" id="batteri" required>
+
+      <label for="start">Startprosent (%):</label>
+      <input type="number" id="start" min="0" max="100" required>
+
+      <label for="slutt">Sluttprosent (%):</label>
+      <input type="number" id="slutt" min="0" max="100" required>
+
+      <label for="effekt">Ladeeffekt (kW):</label>
+      <input type="number" id="effekt" step="0.1" required>
+
+      <button type="submit">Beregn ladetid</button>
+    </form>
+
+    <div id="result"></div>
+  </div>
+
+  <script>
+    document.getElementById('kalkulator').addEventListener('submit', function(e) {
+      e.preventDefault();
+
+      const batteri = parseFloat(document.getElementById('batteri').value);
+      const start = parseFloat(document.getElementById('start').value);
+      const slutt = parseFloat(document.getElementById('slutt').value);
+      const effekt = parseFloat(document.getElementById('effekt').value);
+
+      const result = document.getElementById('result');
+
+      if (start >= slutt) {
+        result.textContent = "Startprosent må være mindre enn sluttprosent.";
+        return;
+      }
+
+      const prosentDifferanse = slutt - start;
+      const energiBehov = (prosentDifferanse / 100) * batteri;
+      const ladetid = energiBehov / effekt;
+
+      const timer = Math.floor(ladetid);
+      const minutter = Math.round((ladetid - timer) * 60);
+
+      result.textContent = `Estimert ladetid: ${timer} t ${minutter} min.`;
+    });
+  </script>
+</body>
+</html>
