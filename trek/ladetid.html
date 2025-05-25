@@ -3,11 +3,12 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Ladetid</title>
+  <title>Trek Ladetid</title>
   <style>
     * {
       box-sizing: border-box;
     }
+
     html, body {
       margin: 0;
       padding: 0;
@@ -29,13 +30,19 @@
       background: white;
       border-radius: 8px;
       box-shadow: 0 0 10px rgba(0,0,0,0.1);
-      padding: 12px 16px;
+      padding: 16px 20px;
       max-width: 400px;
       width: 100%;
       min-height: 100vh;
       display: flex;
       flex-direction: column;
       justify-content: flex-start;
+    }
+
+    h2 {
+      text-align: center;
+      margin-bottom: 16px;
+      font-weight: 700;
     }
 
     label {
@@ -69,17 +76,19 @@
 </head>
 <body>
   <div class="container">
+    <h2>LadetidBike</h2>
+
     <label for="batteryWh">Batteri Wh:</label>
     <div class="slider-label" id="batteryWh-verdi">545 Wh</div>
-    <input type="range" id="batteryWh" min="100" max="2000" step="5" value="545" />
+    <input type="range" id="batteryWh" min="100" max="2000" step="10" value="545" />
 
     <label for="from">Startprosent (%):</label>
-    <div class="slider-label" id="from-verdi">50%</div>
-    <input type="range" id="from" min="0" max="100" step="1" value="50" />
+    <div class="slider-label" id="from-verdi">0%</div>
+    <input type="range" id="from" min="0" max="100" step="1" value="0" />
 
     <label for="to">Målprosent (%):</label>
-    <div class="slider-label" id="to-verdi">80%</div>
-    <input type="range" id="to" min="0" max="100" step="1" value="80" />
+    <div class="slider-label" id="to-verdi">100%</div>
+    <input type="range" id="to" min="0" max="100" step="1" value="100" />
 
     <div id="result"></div>
   </div>
@@ -118,13 +127,13 @@
         timer += 1;
       }
 
-      result.textContent = Estimert ladetid: ${timer} t ${minutter} min;
+      result.textContent = `Estimert ladetid: ${timer} t ${minutter} min`;
     }
 
     function oppdaterOgBeregn() {
-      batteryLabel.textContent = ${batterySlider.value} Wh;
-      fromLabel.textContent = ${fromSlider.value}%;
-      toLabel.textContent = ${toSlider.value}%;
+      batteryLabel.textContent = `${batterySlider.value} Wh`;
+      fromLabel.textContent = `${fromSlider.value}%`;
+      toLabel.textContent = `${toSlider.value}%`;
       beregn();
     }
 
