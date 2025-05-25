@@ -95,7 +95,9 @@
     const toLabel = document.getElementById('to-verdi');
 
     const result = document.getElementById('result');
-    const chargePower = 144; // fast ladeeffekt i watt
+    const maxChargePower = 144; // W
+    const minChargePower = 0.3 * maxChargePower; // 30% effekt mot slutten
+    const efficiency = 0.96;
 
     function beregn() {
       const batteryWh = parseFloat(batterySlider.value);
@@ -107,13 +109,41 @@
         return;
       }
 
-      const efficiency = 0.96;
-      const neededWh = batteryWh * ((to - from) / 100) * efficiency;
-      const chargeTimeHours = neededWh / chargePower;
+      // Delt opp i to faser: normal + sakte
+      const grenseProsent = 80;
+      const fra = from;
+      const til = to;
 
-      let timer = Math.floor(chargeTimeHours);
-      let minutter = Math.round((chargeTimeHours - timer) * 60);
+      let whTotal = 0;
+      let tidTotal = 0;
 
+      // Del 1: normal lading opp til 80 %
+      if (fra < grenseProsent) {
+        const del1Til = Math.min(til, grenseProsent);
+        const del1Prosent = del1Til - fra;
+        const del1Wh = batteryWh * (del1Prosent / 100) / efficiency;
+        const del1Tid = del1Wh / maxChargePower;
+
+        whTotal += del1Wh;
+        tidTotal += del1Tid;
+      }
+
+      // Del 2: sakte lading over 80 %
+      if (til > grenseProsent) {
+        const del2Fra = Math.max(fra, grenseProsent);
+        const del2Prosent = til - del2Fra;
+        const del2Wh = batteryWh * (del2Prosent / 100) / efficiency;
+
+        // Gjennomsnittlig effekt i dette området reduseres lineært
+        const snittEffekt = (maxChargePower + minChargePower) / 2;
+        const del2Tid = del2Wh / snittEffekt;
+
+        whTotal += del2Wh;
+        tidTotal += del2Tid;
+      }
+
+      const timer = Math.floor(tidTotal);
+      let minutter = Math.round((tidTotal - timer) * 60);
       if (minutter === 60) {
         minutter = 0;
         timer += 1;
