@@ -47,10 +47,15 @@
       box-sizing: border-box;
     }
 
+    .slider-group {
+      margin-top: 16px;
+    }
+
     .slider-label {
-      display: flex;
-      justify-content: space-between;
-      margin-top: 6px;
+      text-align: center;
+      font-weight: bold;
+      margin-bottom: 6px;
+      font-size: 16px;
     }
 
     button {
@@ -90,13 +95,17 @@
       <label for="batteri">Batteristørrelse (kWh):</label>
       <input type="number" id="batteri" value="61" required>
 
-      <label for="start">Startprosent (%):</label>
-      <input type="range" id="start" min="0" max="100" value="50">
-      <div class="slider-label"><span>Valgt: <span id="start-verdi">50</span>%</span></div>
+      <div class="slider-group">
+        <label for="start">Startprosent (%):</label>
+        <div class="slider-label" id="start-verdi">57%</div>
+        <input type="range" id="start" min="0" max="100" value="57">
+      </div>
 
-      <label for="slutt">Sluttprosent (%):</label>
-      <input type="range" id="slutt" min="0" max="100" value="50">
-      <div class="slider-label"><span>Valgt: <span id="slutt-verdi">50</span>%</span></div>
+      <div class="slider-group">
+        <label for="slutt">Sluttprosent (%):</label>
+        <div class="slider-label" id="slutt-verdi">80%</div>
+        <input type="range" id="slutt" min="0" max="100" value="80">
+      </div>
 
       <label for="effekt">Ladeeffekt (kW):</label>
       <input type="number" id="effekt" step="0.1" value="6" required>
@@ -108,21 +117,19 @@
   </div>
 
   <script>
-    // Oppdater visning av prosentverdier
     const startSlider = document.getElementById('start');
     const sluttSlider = document.getElementById('slutt');
     const startVerdi = document.getElementById('start-verdi');
     const sluttVerdi = document.getElementById('slutt-verdi');
 
     startSlider.addEventListener('input', () => {
-      startVerdi.textContent = startSlider.value;
+      startVerdi.textContent = `${startSlider.value}%`;
     });
 
     sluttSlider.addEventListener('input', () => {
-      sluttVerdi.textContent = sluttSlider.value;
+      sluttVerdi.textContent = `${sluttSlider.value}%`;
     });
 
-    // Kalkulasjon
     document.getElementById('kalkulator').addEventListener('submit', function(e) {
       e.preventDefault();
 
@@ -139,10 +146,7 @@
       }
 
       const prosentDifferanse = slutt - start;
-
-      // Kalibrert for å treffe 2 timer
       const kalibreringsFaktor = 0.83;
-
       const energiBehov = (prosentDifferanse / 100) * batteri * kalibreringsFaktor;
       const ladetid = energiBehov / effekt;
 
