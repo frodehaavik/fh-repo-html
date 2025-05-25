@@ -151,7 +151,13 @@
       const ladetid = energiBehov / effekt;
 
       const timer = Math.floor(ladetid);
-      const minutter = Math.round((ladetid - timer) * 60);
+let minutter = Math.round((ladetid - timer) * 60);
+
+if (minutter === 60) {
+  minutter = 0;
+  timer += 1;
+}
+
 
       result.textContent = `Estimert ladetid: ${timer} t ${minutter} min.`;
     });
