@@ -116,7 +116,9 @@
       }
 
       const efficiency = 0.96;
+     // const neededWh = batteryWh * ((to - from) / 100) * efficiency;
       const neededWh = batteryWh * ((to - from) / 100) / efficiency;
+
       const chargeTimeHours = neededWh / chargePower;
 
       let timer = Math.floor(chargeTimeHours);
