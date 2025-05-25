@@ -146,7 +146,7 @@
       }
 
       const prosentDifferanse = slutt - start;
-      const kalibreringsFaktor = 0.83;
+      const kalibreringsFaktor = 0.8415;
       const energiBehov = (prosentDifferanse / 100) * batteri * kalibreringsFaktor;
       const ladetid = energiBehov / effekt;
 
