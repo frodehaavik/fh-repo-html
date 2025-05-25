@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="no">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Ladetidkalkulator Elbil</title>
   <style>
     body {
@@ -37,7 +37,8 @@
       font-weight: bold;
     }
 
-    input[type="number"], input[type="range"] {
+    input[type="number"],
+    input[type="range"] {
       width: 100%;
       padding: 10px;
       margin-top: 6px;
@@ -93,22 +94,22 @@
     <h2>LadetidBil</h2>
     <form id="kalkulator">
       <label for="batteri">Batteristørrelse (kWh):</label>
-      <input type="number" id="batteri" value="62" required>
+      <input type="number" id="batteri" value="62" required />
 
       <div class="slider-group">
         <label for="start">Startprosent (%):</label>
         <div class="slider-label" id="start-verdi">50%</div>
-        <input type="range" id="start" min="0" max="100" value="50">
+        <input type="range" id="start" min="0" max="100" value="50" />
       </div>
 
       <div class="slider-group">
         <label for="slutt">Sluttprosent (%):</label>
         <div class="slider-label" id="slutt-verdi">80%</div>
-        <input type="range" id="slutt" min="0" max="100" value="80">
+        <input type="range" id="slutt" min="0" max="100" value="80" />
       </div>
 
       <label for="effekt">Ladeeffekt (kW):</label>
-      <input type="number" id="effekt" step="0.1" value="6" required>
+      <input type="number" id="effekt" step="0.1" value="6" required />
 
       <button type="submit">Beregn ladetid</button>
     </form>
@@ -122,17 +123,7 @@
     const startVerdi = document.getElementById('start-verdi');
     const sluttVerdi = document.getElementById('slutt-verdi');
 
-    startSlider.addEventListener('input', () => {
-      startVerdi.textContent = `${startSlider.value}%`;
-    });
-
-    sluttSlider.addEventListener('input', () => {
-      sluttVerdi.textContent = `${sluttSlider.value}%`;
-    });
-
-    document.getElementById('kalkulator').addEventListener('submit', function(e) {
-      e.preventDefault();
-
+    function beregnLadetid() {
       const batteri = parseFloat(document.getElementById('batteri').value);
       const start = parseFloat(startSlider.value);
       const slutt = parseFloat(sluttSlider.value);
@@ -141,7 +132,7 @@
       const result = document.getElementById('result');
 
       if (start >= slutt) {
-        result.textContent = "Startprosent må være mindre enn sluttprosent.";
+        result.textContent = 'Startprosent må være mindre enn sluttprosent.';
         return;
       }
 
@@ -150,17 +141,34 @@
       const energiBehov = (prosentDifferanse / 100) * batteri * kalibreringsFaktor;
       const ladetid = energiBehov / effekt;
 
-      const timer = Math.floor(ladetid);
-let minutter = Math.round((ladetid - timer) * 60);
+      let timer = Math.floor(ladetid);
+      let minutter = Math.round((ladetid - timer) * 60);
 
-if (minutter === 60) {
-  minutter = 0;
-  timer += 1;
-}
-
+      if (minutter === 60) {
+        minutter = 0;
+        timer += 1;
+      }
 
       result.textContent = `Estimert ladetid: ${timer} t ${minutter} min.`;
+    }
+
+    startSlider.addEventListener('input', () => {
+      startVerdi.textContent = `${startSlider.value}%`;
+      beregnLadetid();
     });
+
+    sluttSlider.addEventListener('input', () => {
+      sluttVerdi.textContent = `${sluttSlider.value}%`;
+      beregnLadetid();
+    });
+
+    document.getElementById('kalkulator').addEventListener('submit', function (e) {
+      e.preventDefault();
+      beregnLadetid();
+    });
+
+    // Beregn initialt ved sideinnlasting
+    beregnLadetid();
   </script>
 </body>
 </html>
