@@ -2,7 +2,7 @@
 <html lang="no">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Trek Ladetid</title>
   <style>
     * {
@@ -16,63 +16,61 @@
       font-family: Arial, sans-serif;
       font-size: 18px;
       background-color: #f0f0f0;
+      overflow: hidden;
+    }
+
+    body {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
     }
 
     .container {
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      padding: 20px;
-      max-width: 400px;
-      margin: auto;
       background: white;
       border-radius: 8px;
       box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      padding: 16px 20px;
+      max-width: 400px;
+      width: 100%;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start;
     }
 
     h2 {
       text-align: center;
-      margin-bottom: 20px;
+      margin-bottom: 16px;
+      font-weight: 700;
     }
 
     label {
-      margin-top: 10px;
+      font-weight: bold;
+      margin-top: 12px;
       display: block;
+      font-size: 14px;
     }
 
-    input {
+    input[type="range"] {
       width: 100%;
-      padding: 12px;
-      margin-top: 5px;
-      margin-bottom: 10px;
-      font-size: 1em;
-      border: 1px solid #ccc;
-      border-radius: 4px;
+      margin-top: 6px;
     }
 
-    button {
-      width: 100%;
-      padding: 14px;
-      font-size: 1em;
-      background-color: #2e86de;
-      color: white;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-      margin-top: 10px;
-      transition: background-color 0.3s ease;
-    }
-
-    button:hover {
-      background-color: #225bb5;
+    .slider-label {
+      text-align: center;
+      font-weight: 600;
+      font-size: 14px;
+      margin-top: 4px;
     }
 
     #result {
       margin-top: 20px;
       font-weight: bold;
       text-align: center;
-      min-height: 30px;
+      font-size: 18px;
+      flex-shrink: 0;
+      min-height: 36px;
     }
   </style>
 </head>
@@ -81,49 +79,70 @@
     <h2>LadetidBike</h2>
 
     <label for="batteryWh">Batteri Wh:</label>
-    <input type="number" id="batteryWh" value="545" min="1" step="any" />
+    <div class="slider-label" id="batteryWh-verdi">545 Wh</div>
+    <input type="range" id="batteryWh" min="100" max="2000" step="10" value="545" />
 
-    <label for="from">Startprosent:</label>
-    <input type="number" id="from" placeholder="0–100" min="0" max="100" />
+    <label for="from">Startprosent (%):</label>
+    <div class="slider-label" id="from-verdi">0%</div>
+    <input type="range" id="from" min="0" max="100" step="1" value="0" />
 
-    <label for="to">Målprosent:</label>
-    <input type="number" id="to" placeholder="0–100" min="0" max="100" />
-
-    <button onclick="calculate()">Beregn ladetid</button>
+    <label for="to">Målprosent (%):</label>
+    <div class="slider-label" id="to-verdi">100%</div>
+    <input type="range" id="to" min="0" max="100" step="1" value="100" />
 
     <div id="result"></div>
   </div>
 
   <script>
-    function calculate() {
-      const from = parseFloat(document.getElementById("from").value);
-      const to = parseFloat(document.getElementById("to").value);
-      const batteryWh = parseFloat(document.getElementById("batteryWh").value);
-      const chargePower = 144;
+    const batterySlider = document.getElementById('batteryWh');
+    const fromSlider = document.getElementById('from');
+    const toSlider = document.getElementById('to');
 
-      if (
-        isNaN(from) ||
-        isNaN(to) ||
-        isNaN(batteryWh) ||
-        batteryWh <= 0 ||
-        from >= to ||
-        from < 0 ||
-        to > 100
-      ) {
-        document.getElementById("result").innerText =
-          "Feil: Sjekk at batteri Wh er positiv, og at fra-prosent er mindre enn til-prosent og innenfor 0–100.";
+    const batteryLabel = document.getElementById('batteryWh-verdi');
+    const fromLabel = document.getElementById('from-verdi');
+    const toLabel = document.getElementById('to-verdi');
+
+    const result = document.getElementById('result');
+    const chargePower = 144; // fast ladeeffekt i watt
+
+    function beregn() {
+      const batteryWh = parseFloat(batterySlider.value);
+      const from = parseFloat(fromSlider.value);
+      const to = parseFloat(toSlider.value);
+
+      if (from >= to) {
+        result.textContent = "Startprosent må være mindre enn målprosent.";
         return;
       }
 
-      const efficiency = 0.96; // 96 % effektivitet/sikkerhetsmargin
+      const efficiency = 0.96;
       const neededWh = batteryWh * ((to - from) / 100) * efficiency;
       const chargeTimeHours = neededWh / chargePower;
-      const hours = Math.floor(chargeTimeHours);
-      const minutes = Math.round((chargeTimeHours - hours) * 60);
 
-      document.getElementById("result").innerText =
-        `Estimert ladetid: ${hours} t ${minutes} min`;
+      let timer = Math.floor(chargeTimeHours);
+      let minutter = Math.round((chargeTimeHours - timer) * 60);
+
+      if (minutter === 60) {
+        minutter = 0;
+        timer += 1;
+      }
+
+      result.textContent = `Estimert ladetid: ${timer} t ${minutter} min`;
     }
+
+    function oppdaterOgBeregn() {
+      batteryLabel.textContent = `${batterySlider.value} Wh`;
+      fromLabel.textContent = `${fromSlider.value}%`;
+      toLabel.textContent = `${toSlider.value}%`;
+      beregn();
+    }
+
+    batterySlider.addEventListener('input', oppdaterOgBeregn);
+    fromSlider.addEventListener('input', oppdaterOgBeregn);
+    toSlider.addEventListener('input', oppdaterOgBeregn);
+
+    // Init ved sideinnlasting
+    oppdaterOgBeregn();
   </script>
 </body>
 </html>
