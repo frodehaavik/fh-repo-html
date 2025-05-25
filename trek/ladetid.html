@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Trek Ladetid</title>
+  <title>Ladetid</title>
   <style>
     * {
       box-sizing: border-box;
@@ -30,7 +30,7 @@
       background: white;
       border-radius: 8px;
       box-shadow: 0 0 10px rgba(0,0,0,0.1);
-      padding: 16px 20px;
+      padding: 12px 16px;
       max-width: 400px;
       width: 100%;
       min-height: 100vh;
@@ -38,6 +38,7 @@
       flex-direction: column;
       justify-content: flex-start;
     }
+
     label {
       font-weight: bold;
       margin-top: 12px;
@@ -69,19 +70,17 @@
 </head>
 <body>
   <div class="container">
-    <h2>LadetidBike</h2>
-
     <label for="batteryWh">Batteri Wh:</label>
     <div class="slider-label" id="batteryWh-verdi">545 Wh</div>
     <input type="range" id="batteryWh" min="100" max="2000" step="10" value="545" />
 
     <label for="from">Startprosent (%):</label>
-    <div class="slider-label" id="from-verdi">50%</div>
-    <input type="range" id="from" min="0" max="100" step="1" value="50" />
+    <div class="slider-label" id="from-verdi">0%</div>
+    <input type="range" id="from" min="0" max="100" step="1" value="0" />
 
     <label for="to">Målprosent (%):</label>
-    <div class="slider-label" id="to-verdi">80%</div>
-    <input type="range" id="to" min="0" max="100" step="1" value="80" />
+    <div class="slider-label" id="to-verdi">100%</div>
+    <input type="range" id="to" min="0" max="100" step="1" value="100" />
 
     <div id="result"></div>
   </div>
