@@ -11,7 +11,7 @@
       padding: 0;
       font-family: Arial, sans-serif;
       background-color: #f4f4f4;
-      overflow: hidden; /* Fjern scrolling på body */
+      overflow: hidden;
     }
 
     body {
@@ -33,7 +33,7 @@
       min-height: 100vh;
       display: flex;
       flex-direction: column;
-      justify-content: flex-start; /* Start øverst */
+      justify-content: flex-start;
     }
 
     label {
@@ -86,8 +86,11 @@
 <body>
   <div class="container">
     <form id="kalkulator" style="width: 100%;">
-      <label for="batteri">Batteristørrelse (kWh):</label>
-      <input type="number" id="batteri" value="62" required />
+      <div class="slider-group">
+        <label for="batteri">Batteristørrelse (kWh):</label>
+        <div class="slider-label" id="batteri-verdi">62 kWh</div>
+        <input type="range" id="batteri" min="20" max="150" value="62" step="1" />
+      </div>
 
       <div class="slider-group">
         <label for="start">Startprosent (%):</label>
@@ -101,27 +104,34 @@
         <input type="range" id="slutt" min="0" max="100" value="80" />
       </div>
 
-      <label for="effekt">Ladeeffekt (kW):</label>
-      <input type="number" id="effekt" step="0.1" value="6" required />
+      <div class="slider-group">
+        <label for="effekt">Ladeeffekt (kW):</label>
+        <div class="slider-label" id="effekt-verdi">6 kW</div>
+        <input type="range" id="effekt" min="1" max="50" value="6" step="0.1" />
+      </div>
     </form>
 
     <div id="result"></div>
   </div>
 
   <script>
+    const batteriSlider = document.getElementById('batteri');
     const startSlider = document.getElementById('start');
     const sluttSlider = document.getElementById('slutt');
+    const effektSlider = document.getElementById('effekt');
+
+    const batteriVerdi = document.getElementById('batteri-verdi');
     const startVerdi = document.getElementById('start-verdi');
     const sluttVerdi = document.getElementById('slutt-verdi');
-    const batteriInput = document.getElementById('batteri');
-    const effektInput = document.getElementById('effekt');
+    const effektVerdi = document.getElementById('effekt-verdi');
+
     const result = document.getElementById('result');
 
     function beregnLadetid() {
-      const batteri = parseFloat(batteriInput.value);
+      const batteri = parseFloat(batteriSlider.value);
       const start = parseFloat(startSlider.value);
       const slutt = parseFloat(sluttSlider.value);
-      const effekt = parseFloat(effektInput.value);
+      const effekt = parseFloat(effektSlider.value);
 
       if (start >= slutt) {
         result.textContent = 'Startprosent må være mindre enn sluttprosent.';
@@ -145,15 +155,17 @@
     }
 
     function oppdaterOgBeregn() {
+      batteriVerdi.textContent = `${batteriSlider.value} kWh`;
       startVerdi.textContent = `${startSlider.value}%`;
       sluttVerdi.textContent = `${sluttSlider.value}%`;
+      effektVerdi.textContent = `${parseFloat(effektSlider.value).toFixed(1)} kW`;
       beregnLadetid();
     }
 
+    batteriSlider.addEventListener('input', oppdaterOgBeregn);
     startSlider.addEventListener('input', oppdaterOgBeregn);
     sluttSlider.addEventListener('input', oppdaterOgBeregn);
-    batteriInput.addEventListener('input', beregnLadetid);
-    effektInput.addEventListener('input', beregnLadetid);
+    effektSlider.addEventListener('input', oppdaterOgBeregn);
 
     oppdaterOgBeregn();
   </script>
