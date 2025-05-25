@@ -59,22 +59,6 @@
       font-size: 16px;
     }
 
-    button {
-      width: 100%;
-      padding: 12px;
-      margin-top: 24px;
-      background-color: #007BFF;
-      color: white;
-      font-size: 16px;
-      border: none;
-      border-radius: 6px;
-      cursor: pointer;
-    }
-
-    button:hover {
-      background-color: #0056b3;
-    }
-
     #result {
       margin-top: 20px;
       text-align: center;
@@ -110,8 +94,6 @@
 
       <label for="effekt">Ladeeffekt (kW):</label>
       <input type="number" id="effekt" step="0.1" value="6" required />
-
-      <button type="submit">Beregn ladetid</button>
     </form>
 
     <div id="result"></div>
@@ -122,12 +104,14 @@
     const sluttSlider = document.getElementById('slutt');
     const startVerdi = document.getElementById('start-verdi');
     const sluttVerdi = document.getElementById('slutt-verdi');
+    const batteriInput = document.getElementById('batteri');
+    const effektInput = document.getElementById('effekt');
 
     function beregnLadetid() {
-      const batteri = parseFloat(document.getElementById('batteri').value);
+      const batteri = parseFloat(batteriInput.value);
       const start = parseFloat(startSlider.value);
       const slutt = parseFloat(sluttSlider.value);
-      const effekt = parseFloat(document.getElementById('effekt').value);
+      const effekt = parseFloat(effektInput.value);
 
       const result = document.getElementById('result');
 
@@ -152,23 +136,21 @@
       result.textContent = `Estimert ladetid: ${timer} t ${minutter} min.`;
     }
 
-    startSlider.addEventListener('input', () => {
+    // Oppdater tekst over sliders og kalkuler ved endring
+    function oppdaterOgBeregn() {
       startVerdi.textContent = `${startSlider.value}%`;
-      beregnLadetid();
-    });
-
-    sluttSlider.addEventListener('input', () => {
       sluttVerdi.textContent = `${sluttSlider.value}%`;
       beregnLadetid();
-    });
+    }
 
-    document.getElementById('kalkulator').addEventListener('submit', function (e) {
-      e.preventDefault();
-      beregnLadetid();
-    });
+    // Legg på event listeners på alle inputfelt
+    startSlider.addEventListener('input', oppdaterOgBeregn);
+    sluttSlider.addEventListener('input', oppdaterOgBeregn);
+    batteriInput.addEventListener('input', beregnLadetid);
+    effektInput.addEventListener('input', beregnLadetid);
 
-    // Beregn initialt ved sideinnlasting
-    beregnLadetid();
+    // Kalkuler første gang siden lastes
+    oppdaterOgBeregn();
   </script>
 </body>
 </html>
