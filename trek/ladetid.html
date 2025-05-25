@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Ladetid og effektivitet</title>
+  <title>Ladetid</title>
   <style>
     * {
       box-sizing: border-box;
@@ -16,23 +16,27 @@
       font-family: Arial, sans-serif;
       font-size: 18px;
       background-color: #f0f0f0;
+      overflow: hidden;
     }
 
     body {
       display: flex;
       justify-content: center;
-      align-items: flex-start;
+      align-items: center;
       min-height: 100vh;
-      padding: 20px;
     }
 
     .container {
       background: white;
       border-radius: 8px;
       box-shadow: 0 0 10px rgba(0,0,0,0.1);
-      padding: 20px;
-      max-width: 420px;
+      padding: 12px 16px;
+      max-width: 400px;
       width: 100%;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start;
     }
 
     label {
@@ -42,8 +46,7 @@
       font-size: 14px;
     }
 
-    input[type="range"],
-    input[type="number"] {
+    input[type="range"] {
       width: 100%;
       margin-top: 6px;
     }
@@ -60,6 +63,7 @@
       font-weight: bold;
       text-align: center;
       font-size: 18px;
+      flex-shrink: 0;
       min-height: 36px;
     }
   </style>
@@ -71,19 +75,12 @@
     <input type="range" id="batteryWh" min="100" max="2000" step="5" value="545" />
 
     <label for="from">Startprosent (%):</label>
-    <div class="slider-label" id="from-verdi">39%</div>
-    <input type="range" id="from" min="0" max="100" step="1" value="39" />
+    <div class="slider-label" id="from-verdi">50%</div>
+    <input type="range" id="from" min="0" max="100" step="1" value="50" />
 
     <label for="to">Målprosent (%):</label>
     <div class="slider-label" id="to-verdi">80%</div>
     <input type="range" id="to" min="0" max="100" step="1" value="80" />
-
-    <label for="actualTo">Faktisk sluttprosent (%):</label>
-    <input type="number" id="actualTo" min="0" max="100" value="90" />
-
-    <label for="actualTimeHours">Faktisk ladetid (timer og minutter):</label>
-    <input type="number" id="actualTimeHours" placeholder="Timer" min="0" value="1" />
-    <input type="number" id="actualTimeMinutes" placeholder="Minutter" min="0" max="59" value="29" />
 
     <div id="result"></div>
   </div>
@@ -92,83 +89,51 @@
     const batterySlider = document.getElementById('batteryWh');
     const fromSlider = document.getElementById('from');
     const toSlider = document.getElementById('to');
-    const actualToInput = document.getElementById('actualTo');
-    const actualHours = document.getElementById('actualTimeHours');
-    const actualMinutes = document.getElementById('actualTimeMinutes');
 
     const batteryLabel = document.getElementById('batteryWh-verdi');
     const fromLabel = document.getElementById('from-verdi');
     const toLabel = document.getElementById('to-verdi');
-    const result = document.getElementById('result');
 
-    const maxChargePower = 144;
-    const minChargePower = 0.3 * maxChargePower;
-    const efficiency = 0.96;
+    const result = document.getElementById('result');
+    const chargePower = 144; // fast ladeeffekt i watt
 
     function beregn() {
       const batteryWh = parseFloat(batterySlider.value);
       const from = parseFloat(fromSlider.value);
       const to = parseFloat(toSlider.value);
-      const actualTo = parseFloat(actualToInput.value);
-      const actualTime = parseFloat(actualHours.value) + parseFloat(actualMinutes.value) / 60;
 
-      if (from >= to || from >= actualTo) {
-        result.textContent = "Startprosent må være mindre enn målprosent og faktisk sluttprosent.";
+      if (from >= to) {
+        result.textContent = "Startprosent må være mindre enn målprosent.";
         return;
       }
 
-      const grenseProsent = 80;
-      let tidTotal = 0;
+      const efficiency = 0.96;
+      const neededWh = batteryWh * ((to - from) / 100) / efficiency;
+      const chargeTimeHours = neededWh / chargePower;
 
-      if (from < grenseProsent) {
-        const del1Til = Math.min(to, grenseProsent);
-        const del1Prosent = del1Til - from;
-        const del1Wh = (batteryWh * (del1Prosent / 100)) / efficiency;
-        tidTotal += del1Wh / maxChargePower;
-      }
+      let timer = Math.floor(chargeTimeHours);
+      let minutter = Math.round((chargeTimeHours - timer) * 60);
 
-      if (to > grenseProsent) {
-        const del2Fra = Math.max(from, grenseProsent);
-        const del2Prosent = to - del2Fra;
-        const del2Wh = (batteryWh * (del2Prosent / 100)) / efficiency;
-        const snittEffekt = (maxChargePower + minChargePower) / 2;
-        tidTotal += del2Wh / snittEffekt;
-      }
-
-      const timer = Math.floor(tidTotal);
-      let minutter = Math.round((tidTotal - timer) * 60);
       if (minutter === 60) {
         minutter = 0;
         timer += 1;
       }
 
-      // Beregning av faktisk effektivitet
-      const faktiskProsent = actualTo - from;
-      const faktiskWh = batteryWh * (faktiskProsent / 100);
-      const levertWh = actualTime * maxChargePower;
-      const beregnetEff = (faktiskWh / levertWh) * 100;
-
-      result.innerHTML = `
-        Estimert ladetid: ${timer} t ${minutter} min<br>
-        Faktisk effektivitet: ${beregnetEff.toFixed(1)}%
-      `;
+      result.textContent = Estimert ladetid: ${timer} t ${minutter} min;
     }
 
     function oppdaterOgBeregn() {
-      batteryLabel.textContent = `${batterySlider.value} Wh`;
-      fromLabel.textContent = `${fromSlider.value}%`;
-      toLabel.textContent = `${toSlider.value}%`;
+      batteryLabel.textContent = ${batterySlider.value} Wh;
+      fromLabel.textContent = ${fromSlider.value}%;
+      toLabel.textContent = ${toSlider.value}%;
       beregn();
     }
 
     batterySlider.addEventListener('input', oppdaterOgBeregn);
     fromSlider.addEventListener('input', oppdaterOgBeregn);
     toSlider.addEventListener('input', oppdaterOgBeregn);
-    actualToInput.addEventListener('input', oppdaterOgBeregn);
-    actualHours.addEventListener('input', oppdaterOgBeregn);
-    actualMinutes.addEventListener('input', oppdaterOgBeregn);
 
-    // Init
+    // Init ved sideinnlasting
     oppdaterOgBeregn();
   </script>
 </body>
