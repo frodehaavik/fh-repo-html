@@ -3,12 +3,17 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Ladetidkalkulator Elbil</title>
   <style>
-    body {
-      font-family: Arial, sans-serif;
+    html, body {
+      height: 100%;
       margin: 0;
       padding: 0;
+      font-family: Arial, sans-serif;
       background-color: #f4f4f4;
+    }
+
+    body {
       display: flex;
       align-items: center;
       justify-content: center;
@@ -19,20 +24,21 @@
       width: 100%;
       max-width: 480px;
       background: white;
-      padding: 24px;
+      padding: 20px 16px;
       border-radius: 12px;
       box-shadow: 0 0 12px rgba(0, 0, 0, 0.1);
       box-sizing: border-box;
-    }
 
-    h2 {
-      text-align: center;
-      margin-bottom: 20px;
+      /* Fyll høyden og gjør innhold scroll-fritt */
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
     }
 
     label {
       display: block;
-      margin-top: 16px;
+      margin-top: 12px;
       font-weight: bold;
     }
 
@@ -48,7 +54,7 @@
     }
 
     .slider-group {
-      margin-top: 16px;
+      margin-top: 12px;
     }
 
     .slider-label {
@@ -59,22 +65,25 @@
     }
 
     #result {
-      margin-top: 20px;
+      margin-top: 24px;
       text-align: center;
       font-weight: bold;
-      font-size: 18px;
+      font-size: 20px;
+      flex-shrink: 0;
     }
 
     @media (max-width: 600px) {
       .container {
-        margin: 20px;
+        border-radius: 0;
+        max-width: 100%;
+        min-height: 100vh;
+        padding: 16px;
       }
     }
   </style>
 </head>
 <body>
   <div class="container">
-    <h2>LadetidBil</h2>
     <form id="kalkulator">
       <label for="batteri">Batteristørrelse (kWh):</label>
       <input type="number" id="batteri" value="62" required />
@@ -135,20 +144,17 @@
       result.textContent = `Estimert ladetid: ${timer} t ${minutter} min.`;
     }
 
-    // Oppdater tekst over sliders og kalkuler ved endring
     function oppdaterOgBeregn() {
       startVerdi.textContent = `${startSlider.value}%`;
       sluttVerdi.textContent = `${sluttSlider.value}%`;
       beregnLadetid();
     }
 
-    // Legg på event listeners på alle inputfelt
     startSlider.addEventListener('input', oppdaterOgBeregn);
     sluttSlider.addEventListener('input', oppdaterOgBeregn);
     batteriInput.addEventListener('input', beregnLadetid);
     effektInput.addEventListener('input', beregnLadetid);
 
-    // Kalkuler første gang siden lastes
     oppdaterOgBeregn();
   </script>
 </body>
