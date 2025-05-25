@@ -37,7 +37,7 @@
       font-weight: bold;
     }
 
-    input {
+    input[type="number"], input[type="range"] {
       width: 100%;
       padding: 10px;
       margin-top: 6px;
@@ -45,6 +45,12 @@
       border-radius: 6px;
       font-size: 16px;
       box-sizing: border-box;
+    }
+
+    .slider-label {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 6px;
     }
 
     button {
@@ -85,10 +91,12 @@
       <input type="number" id="batteri" value="61" required>
 
       <label for="start">Startprosent (%):</label>
-      <input type="number" id="start" min="0" max="100" value="0" required>
+      <input type="range" id="start" min="0" max="100" value="50">
+      <div class="slider-label"><span>Valgt: <span id="start-verdi">50</span>%</span></div>
 
       <label for="slutt">Sluttprosent (%):</label>
-      <input type="number" id="slutt" min="0" max="100" value="0" required>
+      <input type="range" id="slutt" min="0" max="100" value="50">
+      <div class="slider-label"><span>Valgt: <span id="slutt-verdi">50</span>%</span></div>
 
       <label for="effekt">Ladeeffekt (kW):</label>
       <input type="number" id="effekt" step="0.1" value="6" required>
@@ -100,12 +108,27 @@
   </div>
 
   <script>
+    // Oppdater visning av prosentverdier
+    const startSlider = document.getElementById('start');
+    const sluttSlider = document.getElementById('slutt');
+    const startVerdi = document.getElementById('start-verdi');
+    const sluttVerdi = document.getElementById('slutt-verdi');
+
+    startSlider.addEventListener('input', () => {
+      startVerdi.textContent = startSlider.value;
+    });
+
+    sluttSlider.addEventListener('input', () => {
+      sluttVerdi.textContent = sluttSlider.value;
+    });
+
+    // Kalkulasjon
     document.getElementById('kalkulator').addEventListener('submit', function(e) {
       e.preventDefault();
 
       const batteri = parseFloat(document.getElementById('batteri').value);
-      const start = parseFloat(document.getElementById('start').value);
-      const slutt = parseFloat(document.getElementById('slutt').value);
+      const start = parseFloat(startSlider.value);
+      const slutt = parseFloat(sluttSlider.value);
       const effekt = parseFloat(document.getElementById('effekt').value);
 
       const result = document.getElementById('result');
@@ -117,7 +140,7 @@
 
       const prosentDifferanse = slutt - start;
 
-      // Kalibrert faktor som justerer for effektivitet, tap, osv.
+      // Kalibrert for å treffe 2 timer
       const kalibreringsFaktor = 0.83;
 
       const energiBehov = (prosentDifferanse / 100) * batteri * kalibreringsFaktor;
