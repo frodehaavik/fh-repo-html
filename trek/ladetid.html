@@ -4,9 +4,6 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Ladetid</title>
-  <link rel="manifest" href="manifest.json" />
-  <link rel="icon" href="icons/icon-192.png" />
-  <meta name="theme-color" content="#ffffff" />
   <style>
     * {
       box-sizing: border-box;
@@ -17,44 +14,40 @@
       padding: 0;
       height: 100%;
       font-family: Arial, sans-serif;
-      font-size: 16px;
       background-color: #f0f0f0;
     }
 
     .container {
-      background: white;
       height: 100vh;
-      padding: 24px 20px;
+      background: white;
+      padding: 16px 20px;
       display: flex;
       flex-direction: column;
     }
 
     label {
       font-weight: bold;
-      margin-top: 20px;
-      display: block;
+      margin-top: 16px;
       font-size: 14px;
     }
 
     input[type="range"] {
       width: 100%;
-      margin-top: 8px;
+      margin-top: 6px;
     }
 
     .slider-label {
       text-align: center;
-      font-weight: 600;
       font-size: 14px;
-      margin-top: 6px;
+      margin-top: 4px;
     }
 
     #result {
       margin-top: auto;
+      padding-top: 20px;
       font-weight: bold;
       text-align: center;
       font-size: 18px;
-      padding-top: 20px;
-      padding-bottom: 10px;
     }
   </style>
 </head>
@@ -123,13 +116,6 @@
     toSlider.addEventListener('input', oppdaterOgBeregn);
 
     oppdaterOgBeregn();
-
-    // Registrer service worker
-    if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('sw.js')
-        .then(() => console.log('Service Worker registrert'))
-        .catch(err => console.log('SW-feil', err));
-    }
   </script>
 </body>
 </html>
