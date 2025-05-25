@@ -11,6 +11,7 @@
       padding: 0;
       font-family: Arial, sans-serif;
       background-color: #f4f4f4;
+      overflow: hidden; /* Fjern scrolling på body */
     }
 
     body {
@@ -24,51 +25,51 @@
       width: 100%;
       max-width: 480px;
       background: white;
-      padding: 20px 16px;
+      padding: 10px 12px;
       border-radius: 12px;
       box-shadow: 0 0 12px rgba(0, 0, 0, 0.1);
       box-sizing: border-box;
-
-      /* Fyll høyden og gjør innhold scroll-fritt */
+      
       min-height: 100vh;
       display: flex;
       flex-direction: column;
-      justify-content: center;
+      justify-content: flex-start; /* Start øverst */
     }
 
     label {
       display: block;
       margin-top: 12px;
       font-weight: bold;
+      font-size: 14px;
     }
 
     input[type="number"],
     input[type="range"] {
       width: 100%;
-      padding: 10px;
-      margin-top: 6px;
+      padding: 8px;
+      margin-top: 4px;
       border: 1px solid #ccc;
       border-radius: 6px;
-      font-size: 16px;
+      font-size: 14px;
       box-sizing: border-box;
     }
 
     .slider-group {
-      margin-top: 12px;
+      margin-top: 8px;
     }
 
     .slider-label {
       text-align: center;
       font-weight: bold;
-      margin-bottom: 6px;
-      font-size: 16px;
+      margin-bottom: 4px;
+      font-size: 14px;
     }
 
     #result {
-      margin-top: 24px;
+      margin-top: 20px;
       text-align: center;
       font-weight: bold;
-      font-size: 20px;
+      font-size: 18px;
       flex-shrink: 0;
     }
 
@@ -77,14 +78,14 @@
         border-radius: 0;
         max-width: 100%;
         min-height: 100vh;
-        padding: 16px;
+        padding: 10px 12px;
       }
     }
   </style>
 </head>
 <body>
   <div class="container">
-    <form id="kalkulator">
+    <form id="kalkulator" style="width: 100%;">
       <label for="batteri">Batteristørrelse (kWh):</label>
       <input type="number" id="batteri" value="62" required />
 
@@ -114,14 +115,13 @@
     const sluttVerdi = document.getElementById('slutt-verdi');
     const batteriInput = document.getElementById('batteri');
     const effektInput = document.getElementById('effekt');
+    const result = document.getElementById('result');
 
     function beregnLadetid() {
       const batteri = parseFloat(batteriInput.value);
       const start = parseFloat(startSlider.value);
       const slutt = parseFloat(sluttSlider.value);
       const effekt = parseFloat(effektInput.value);
-
-      const result = document.getElementById('result');
 
       if (start >= slutt) {
         result.textContent = 'Startprosent må være mindre enn sluttprosent.';
