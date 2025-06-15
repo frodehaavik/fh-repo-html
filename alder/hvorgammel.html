@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Alderskalkulator</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+      max-width: 400px;
+      margin: auto;
+      background-color: #f4f4f4;
+    }
+    h1 {
+      text-align: center;
+    }
+    input, button {
+      width: 100%;
+      padding: 12px;
+      margin-top: 10px;
+      font-size: 18px;
+      box-sizing: border-box;
+    }
+    #result {
+      margin-top: 20px;
+      font-size: 20px;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Hvor gammel er du?</h1>
+
+  <label for="dob">Fødselsdato:</label>
+  <input type="date" id="dob" max="{{TODAY}}" required>
+
+  <button onclick="calculateAge()">Beregn alder</button>
+
+  <div id="result"></div>
+
+  <script>
+    function calculateAge() {
+      const dobInput = document.getElementById('dob').value;
+      if (!dobInput) {
+        document.getElementById('result').innerText = 'Vennligst skriv inn en dato.';
+        return;
+      }
+
+      const today = new Date();
+      const dob = new Date(dobInput);
+      let age = today.getFullYear() - dob.getFullYear();
+      const m = today.getMonth() - dob.getMonth();
+
+      if (m < 0 || (m === 0 && today.getDate() < dob.getDate())) {
+        age--;
+      }
+
+      document.getElementById('result').innerText = `Du er ${age} år gammel.`;
+    }
+  </script>
+
+</body>
+</html>
