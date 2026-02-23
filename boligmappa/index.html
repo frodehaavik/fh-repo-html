@@ -3,323 +3,114 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Bolig & Hage Pro</title>
-
+<title>Bolig & Hage GitHub</title>
 <style>
-body {
-    font-family: system-ui, sans-serif;
-    margin: 0;
-    background: #f2f4f7;
-}
-
-header {
-    background: #1f6feb;
-    color: white;
-    padding: 14px;
-    text-align: center;
-    font-size: 20px;
-}
-
-nav {
-    display: flex;
-    background: white;
-    border-bottom: 1px solid #ddd;
-}
-
-nav button {
-    flex: 1;
-    padding: 12px;
-    border: none;
-    background: none;
-    font-size: 15px;
-}
-
-nav button.active {
-    background: #e8f0ff;
-    font-weight: bold;
-}
-
-section {
-    display: none;
-    padding: 15px;
-}
-
-section.active {
-    display: block;
-}
-
-.card {
-    background: white;
-    padding: 12px;
-    margin-bottom: 10px;
-    border-radius: 12px;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.06);
-}
-
-input, select, textarea, button {
-    width: 100%;
-    padding: 10px;
-    margin-top: 6px;
-    margin-bottom: 8px;
-    border-radius: 8px;
-    border: 1px solid #ccc;
-    font-size: 15px;
-}
-
-button.primary {
-    background: #1f6feb;
-    color: white;
-    border: none;
-}
-
-button.danger {
-    background: #e5533d;
-    color: white;
-    border: none;
-}
-
-.small {
-    font-size: 13px;
-    color: #666;
-}
-
-.status-ok { color: green; }
-.status-due { color: red; font-weight: bold; }
-
-.priority-high { color: #e5533d; }
-.priority-low { color: #999; }
+body { font-family: system-ui,sans-serif; margin:0; background:#f4f6f8; }
+header{background:#1f6feb;color:white;padding:14px;text-align:center;font-size:20px;}
+nav{display:flex;background:white;border-bottom:1px solid #ddd;}
+nav button{flex:1;padding:12px;border:none;background:none;font-size:15px;}
+nav button.active{background:#e8f0ff;font-weight:bold;}
+section{display:none;padding:15px;}
+section.active{display:block;}
+.card{background:white;padding:12px;margin-bottom:10px;border-radius:12px;box-shadow:0 2px 6px rgba(0,0,0,0.06);}
+input, select, textarea, button{width:100%;padding:10px;margin-top:6px;margin-bottom:8px;border-radius:8px;border:1px solid #ccc;font-size:15px;}
+button.primary{background:#1f6feb;color:white;border:none;}
+button.danger{background:#e5533d;color:white;border:none;}
+.small{font-size:13px;color:#666;}
+.status-ok{color:green;}
+.status-due{color:red;font-weight:bold;}
 </style>
 </head>
 <body>
 
-<header>Bolig & Hage Pro</header>
-
+<header>Bolig & Hage GitHub</header>
 <nav>
 <button onclick="tab('maintenance')" class="active">Vedlikehold</button>
 <button onclick="tab('documents')">Boligmappe</button>
 <button onclick="tab('plants')">Planter</button>
 </nav>
 
-<!-- Vedlikehold -->
 <section id="maintenance" class="active">
-<h3>Ny oppgave</h3>
-<input id="mtitle" placeholder="Oppgave">
-<input id="mdate" type="date">
-<select id="mpriority">
-<option>Normal</option>
-<option>Høy</option>
-<option>Lav</option>
-</select>
-<select id="mrepeat">
-<option value="">Ingen gjentakelse</option>
-<option value="month">Hver måned</option>
-<option value="year">Hvert år</option>
-</select>
-<button class="primary" onclick="addMaintenance()">Legg til</button>
-
-<input id="msearch" placeholder="Søk..." oninput="renderMaintenance()">
+<h3>Vedlikehold</h3>
 <div id="maintenanceList"></div>
 </section>
 
-<!-- Dokumenter -->
 <section id="documents">
-<h3>Nytt dokument</h3>
-<input id="dtitle" placeholder="Navn">
-<select id="dcat">
-<option>Manual</option>
-<option>Kvittering</option>
-<option>Forsikring</option>
-<option>Annet</option>
-</select>
-<input id="dfile" type="file">
-<textarea id="dnote" placeholder="Notat"></textarea>
-<button class="primary" onclick="addDocument()">Lagre</button>
-
-<input id="dsearch" placeholder="Søk..." oninput="renderDocuments()">
+<h3>Boligmappe</h3>
 <div id="documentsList"></div>
 </section>
 
-<!-- Planter -->
 <section id="plants">
-<h3>Ny plante</h3>
-<input id="pname" placeholder="Navn">
-<input id="pwater" type="number" placeholder="Vann hver X dager">
-<input id="pfertilizer" type="number" placeholder="Gjødsel hver X dager">
-<button class="primary" onclick="addPlant()">Legg til</button>
-
-<input id="psearch" placeholder="Søk..." oninput="renderPlants()">
+<h3>Planter</h3>
 <div id="plantsList"></div>
 </section>
 
 <script>
 function tab(id){
-document.querySelectorAll("section").forEach(s=>s.classList.remove("active"));
-document.querySelectorAll("nav button").forEach(b=>b.classList.remove("active"));
-document.getElementById(id).classList.add("active");
-event.target.classList.add("active");
+  document.querySelectorAll("section").forEach(s=>s.classList.remove("active"));
+  document.querySelectorAll("nav button").forEach(b=>b.classList.remove("active"));
+  document.getElementById(id).classList.add("active");
+  event.target.classList.add("active");
 }
 
-function get(k){return JSON.parse(localStorage.getItem(k)||"[]")}
-function save(k,v){localStorage.setItem(k,JSON.stringify(v))}
+/* Hent JSON fra repo */
+async function loadJSON(file){
+  try{
+    const res=await fetch(file);
+    return await res.json();
+  }catch(e){
+    console.error(file,"ikke funnet:",e);
+    return [];
+  }
+}
 
 /* Vedlikehold */
-function addMaintenance(){
-let data=get("maintenance");
-data.push({
-title:mtitle.value,
-date:mdate.value,
-priority:mpriority.value,
-repeat:mrepeat.value,
-done:false
-});
-save("maintenance",data);
-renderMaintenance();
-}
-
-function toggleM(i){
-let d=get("maintenance");
-d[i].done=!d[i].done;
-save("maintenance",d);
-renderMaintenance();
-}
-
-function deleteM(i){
-let d=get("maintenance");
-d.splice(i,1);
-save("maintenance",d);
-renderMaintenance();
-}
-
-function renderMaintenance(){
-let list=maintenanceList;
-let data=get("maintenance");
-let search=msearch.value?.toLowerCase()||"";
-list.innerHTML="";
-
-data.forEach((m,i)=>{
-if(!m.title.toLowerCase().includes(search)) return;
-
-let prClass = m.priority=="Høy"?"priority-high":m.priority=="Lav"?"priority-low":"";
-list.innerHTML+=`
-<div class="card">
-<b>${m.title}</b> <span class="${prClass}">(${m.priority})</span><br>
-<span class="small">Dato: ${m.date||"Ingen"}</span><br>
-<button onclick="toggleM(${i})">${m.done?"Ferdig":"Marker ferdig"}</button>
-<button class="danger" onclick="deleteM(${i})">Slett</button>
-</div>`;
-});
+async function renderMaintenance(){
+  const data=await loadJSON('maintenance.json');
+  const list=document.getElementById('maintenanceList');
+  list.innerHTML='';
+  data.forEach(m=>{
+    list.innerHTML+=`<div class="card">
+      <b>${m.title}</b> (${m.priority})<br>
+      <span class="small">Dato: ${m.date || "Ingen"}</span>
+      </div>`;
+  });
 }
 
 /* Dokumenter */
-function addDocument(){
-let file=dfile.files[0];
-if(!dtitle.value) return;
-
-let reader=new FileReader();
-reader.onload=function(){
-let data=get("documents");
-data.push({
-title:dtitle.value,
-cat:dcat.value,
-note:dnote.value,
-file:reader.result
-});
-save("documents",data);
-renderDocuments();
-}
-if(file) reader.readAsDataURL(file);
-else{
-let data=get("documents");
-data.push({title:dtitle.value,cat:dcat.value,note:dnote.value});
-save("documents",data);
-renderDocuments();
-}
-}
-
-function deleteD(i){
-let d=get("documents");
-d.splice(i,1);
-save("documents",d);
-renderDocuments();
-}
-
-function renderDocuments(){
-let list=documentsList;
-let data=get("documents");
-let search=dsearch.value?.toLowerCase()||"";
-list.innerHTML="";
-
-data.forEach((doc,i)=>{
-if(!doc.title.toLowerCase().includes(search)) return;
-list.innerHTML+=`
-<div class="card">
-<b>${doc.title}</b> (${doc.cat})<br>
-${doc.file?`<a href="${doc.file}" target="_blank">Åpne fil</a><br>`:""}
-<span class="small">${doc.note||""}</span><br>
-<button class="danger" onclick="deleteD(${i})">Slett</button>
-</div>`;
-});
+async function renderDocuments(){
+  // GitHub Pages har ikke API for mapper direkte, må liste filene manuelt
+  const files=[
+    {cat:"Forsikring", name:"forsikring1.pdf", url:"documents/forsikring/forsikring1.pdf"},
+    {cat:"Kvitteringer", name:"elbillader.pdf", url:"documents/kvitteringer/elbillader.pdf"},
+    {cat:"Manual", name:"varmepumpe.pdf", url:"documents/manualer/varmepumpe.pdf"}
+  ];
+  const list=document.getElementById('documentsList');
+  list.innerHTML='';
+  files.forEach(f=>{
+    list.innerHTML+=`<div class="card">
+      <b>${f.name}</b> (${f.cat})<br>
+      <a href="${f.url}" target="_blank">Åpne fil</a>
+    </div>`;
+  });
 }
 
 /* Planter */
-function addPlant(){
-let data=get("plants");
-data.push({
-name:pname.value,
-water:+pwater.value,
-fert:+pfertilizer.value,
-lastWater:new Date().toISOString(),
-lastFert:new Date().toISOString()
-});
-save("plants",data);
-renderPlants();
-}
-
-function water(i){
-let d=get("plants");
-d[i].lastWater=new Date().toISOString();
-save("plants",d);
-renderPlants();
-}
-
-function fert(i){
-let d=get("plants");
-d[i].lastFert=new Date().toISOString();
-save("plants",d);
-renderPlants();
-}
-
-function deleteP(i){
-let d=get("plants");
-d.splice(i,1);
-save("plants",d);
-renderPlants();
-}
-
-function renderPlants(){
-let list=plantsList;
-let data=get("plants");
-let search=psearch.value?.toLowerCase()||"";
-list.innerHTML="";
-
-data.forEach((p,i)=>{
-if(!p.name.toLowerCase().includes(search)) return;
-
-let nextWater=new Date(p.lastWater);
-nextWater.setDate(nextWater.getDate()+p.water);
-let due=nextWater<new Date();
-
-list.innerHTML+=`
-<div class="card">
-<b>${p.name}</b><br>
-<span class="${due?'status-due':'status-ok'}">
-Neste vanning: ${nextWater.toLocaleDateString()}
-</span><br>
-<button onclick="water(${i})">Vannet</button>
-<button onclick="fert(${i})">Gjødsel</button>
-<button class="danger" onclick="deleteP(${i})">Slett</button>
-</div>`;
-});
+async function renderPlants(){
+  const data=await loadJSON('plants.json');
+  const list=document.getElementById('plantsList');
+  list.innerHTML='';
+  data.forEach(p=>{
+    const nextWater=new Date(p.lastWater);
+    nextWater.setDate(nextWater.getDate()+p.water);
+    const due=nextWater<new Date();
+    list.innerHTML+=`<div class="card">
+      <b>${p.name}</b><br>
+      <span class="${due?'status-due':'status-ok'}">
+      Neste vanning: ${nextWater.toLocaleDateString()}
+      </span>
+    </div>`;
+  });
 }
 
 /* Init */
@@ -327,6 +118,5 @@ renderMaintenance();
 renderDocuments();
 renderPlants();
 </script>
-
 </body>
 </html>
