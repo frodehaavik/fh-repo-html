@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Oljekalkulator - Totaktsmotor</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            padding: 30px 25px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 400px;
+            width: 100%;
+        }
+
+        h1 {
+            color: #333;
+            font-size: 24px;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        .subtitle {
+            color: #666;
+            font-size: 14px;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .input-group {
+            margin-bottom: 25px;
+        }
+
+        label {
+            display: block;
+            color: #555;
+            font-weight: 600;
+            margin-bottom: 8px;
+            font-size: 15px;
+        }
+
+        input[type="number"],
+        select {
+            width: 100%;
+            padding: 15px;
+            font-size: 18px;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+            -webkit-appearance: none;
+            appearance: none;
+        }
+
+        input[type="number"]:focus,
+        select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        select {
+            background: white;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23333' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 15px center;
+            padding-right: 40px;
+        }
+
+        .result {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 15px;
+            text-align: center;
+            margin-top: 30px;
+            min-height: 120px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .result-label {
+            font-size: 14px;
+            opacity: 0.9;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+
+        .result-value {
+            font-size: 48px;
+            font-weight: 700;
+            line-height: 1;
+            margin-bottom: 5px;
+        }
+
+        .result-unit {
+            font-size: 18px;
+            opacity: 0.95;
+            font-weight: 500;
+        }
+
+        .info {
+            background: #f5f7fa;
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 20px;
+            font-size: 13px;
+            color: #666;
+            line-height: 1.5;
+        }
+
+        .info strong {
+            color: #333;
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        /* Fjern spinner på number input */
+        input[type="number"]::-webkit-inner-spin-button,
+        input[type="number"]::-webkit-outer-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+
+        input[type="number"] {
+            -moz-appearance: textfield;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>⛽ Oljekalkulator</h1>
+        <p class="subtitle">Totaktsmotor til båt</p>
+
+        <div class="input-group">
+            <label for="bensin">Antall liter bensin</label>
+            <input 
+                type="number" 
+                id="bensin" 
+                placeholder="0" 
+                step="0.1" 
+                min="0"
+                inputmode="decimal"
+                autocomplete="off">
+        </div>
+
+        <div class="input-group">
+            <label for="blanding">Blandingsforhold</label>
+            <select id="blanding">
+                <option value="50">1:50 (2%) - Modern motor</option>
+                <option value="40">1:40 (2,5%)</option>
+                <option value="33">1:33 (3%)</option>
+                <option value="25">1:25 (4%) - Eldre motor</option>
+            </select>
+        </div>
+
+        <div class="result">
+            <div class="result-label">Du trenger</div>
+            <div class="result-value" id="resultat">0</div>
+            <div class="result-unit">desiliter olje</div>
+        </div>
+
+        <div class="info">
+            <strong>Slik bruker du kalkulatoren:</strong>
+            1. Legg inn hvor mange liter bensin du har fylt<br>
+            2. Velg riktig blandingsforhold for din motor<br>
+            3. Resultatet vises automatisk i desiliter
+        </div>
+    </div>
+
+    <script>
+        const bensinInput = document.getElementById('bensin');
+        const blandingSelect = document.getElementById('blanding');
+        const resultatElement = document.getElementById('resultat');
+
+        function beregnOlje() {
+            const bensinLiter = parseFloat(bensinInput.value) || 0;
+            const blandingsforhold = parseInt(blandingSelect.value);
+            
+            // Beregn olje i liter, deretter konverter til desiliter
+            const oljeLiter = bensinLiter / blandingsforhold;
+            const oljeDesiliter = Math.round(oljeLiter * 10 * 10) / 10; // Rund til én desimal
+            
+            resultatElement.textContent = oljeDesiliter.toFixed(1);
+        }
+
+        // Oppdater ved endring
+        bensinInput.addEventListener('input', beregnOlje);
+        blandingSelect.addEventListener('change', beregnOlje);
+
+        // Initial beregning
+        beregnOlje();
+    </script>
+</body>
+</html>
