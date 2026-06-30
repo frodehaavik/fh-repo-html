@@ -51,6 +51,39 @@
             opacity: 0.95;
         }
         
+        .filter-container {
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px solid rgba(255,255,255,0.2);
+        }
+        
+        .filter-toggle {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(255,255,255,0.15);
+            padding: 8px 15px;
+            border-radius: 20px;
+            cursor: pointer;
+            user-select: none;
+            transition: background 0.2s;
+            font-size: 0.9em;
+        }
+        
+        .filter-toggle:active {
+            background: rgba(255,255,255,0.25);
+        }
+        
+        .filter-toggle input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
+        
+        .filter-label {
+            cursor: pointer;
+        }
+        
         .loading {
             text-align: center;
             padding: 40px;
@@ -186,6 +219,12 @@
         <header>
             <h1>🚌 Bussavganger fra Forsand</h1>
             <div class="last-updated">Laster data...</div>
+            <div class="filter-container">
+                <label class="filter-toggle">
+                    <input type="checkbox" id="solbakkFilter">
+                    <span class="filter-label">Kun busser til Solbakk under 1 time</span>
+                </label>
+            </div>
         </header>
         
         <div id="content" class="loading">
@@ -196,6 +235,7 @@
     <script>
         const QUAY_ID = 'NSR:Quay:48722';
         const ENTUR_API = 'https://api.entur.io/journey-planner/v3/graphql';
+        let filterSolbakk = false;
         
         async function fetchDepartures() {
             const query = `
@@ -210,9 +250,18 @@
                     frontText
                   }
                   serviceJourney {
+                    id
                     line {
                       publicCode
                       transportMode
+                    }
+                    estimatedCalls {
+                      quay {
+                        name
+                        id
+                      }
+                      aimedDepartureTime
+                      expectedDepartureTime
                     }
                   }
                 }
@@ -244,6 +293,31 @@
                 console.error('Feil ved henting av data:', error);
                 throw error;
             }
+        }
+        
+        function checkSolbakkUnder1Hour(estimatedCalls, departureTime) {
+            // Finn Forsand i listen
+            const forsandIndex = estimatedCalls.findIndex(call => 
+                call.quay.id === QUAY_ID
+            );
+            
+            if (forsandIndex === -1) return false;
+            
+            // Finn Solbakk i listen etter Forsand
+            const solbakkIndex = estimatedCalls.findIndex((call, idx) => 
+                idx > forsandIndex && 
+                call.quay.name && 
+                call.quay.name.toLowerCase().includes('solbakk')
+            );
+            
+            if (solbakkIndex === -1) return false;
+            
+            // Sjekk reisetid (under 1 time)
+            const arrivalTime = new Date(estimatedCalls[solbakkIndex].expectedDepartureTime || estimatedCalls[solbakkIndex].aimedDepartureTime);
+            const depTime = new Date(departureTime);
+            const travelTimeMinutes = (arrivalTime - depTime) / 60000;
+            
+            return travelTimeMinutes < 60;
         }
         
         function formatTime(isoString) {
@@ -280,13 +354,26 @@
             const endTime = new Date(now.getTime() + 24 * 60 * 60 * 1000);
             
             // Filtrer avganger innenfor de neste 24 timene
-            const departures = data.quay.estimatedCalls.filter(call => {
+            let departures = data.quay.estimatedCalls.filter(call => {
                 const depTime = new Date(call.expectedDepartureTime);
                 return depTime >= now && depTime <= endTime;
             });
             
+            // Filtrer for Solbakk under 1 time hvis aktivert
+            if (filterSolbakk) {
+                departures = departures.filter(call => 
+                    checkSolbakkUnder1Hour(
+                        call.serviceJourney.estimatedCalls,
+                        call.expectedDepartureTime
+                    )
+                );
+            }
+            
             if (departures.length === 0) {
-                content.innerHTML = '<div class="no-departures">Ingen avganger de neste 24 timene</div>';
+                const message = filterSolbakk 
+                    ? 'Ingen busser til Solbakk under 1 time funnet de neste 24 timene'
+                    : 'Ingen avganger de neste 24 timene';
+                content.innerHTML = `<div class="no-departures">${message}</div>`;
                 return;
             }
             
@@ -341,6 +428,12 @@
         
         // Oppdater hvert minutt
         setInterval(updateDepartures, 60000);
+        
+        // Håndter filter-endring
+        document.getElementById('solbakkFilter').addEventListener('change', (e) => {
+            filterSolbakk = e.target.checked;
+            updateDepartures();
+        });
     </script>
 </body>
 </html>
