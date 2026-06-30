@@ -222,7 +222,7 @@
             <div class="filter-container">
                 <label class="filter-toggle">
                     <input type="checkbox" id="solbakkFilter">
-                    <span class="filter-label">Kun busser til Solbakk under 1 time</span>
+                    <span class="filter-label">Direkterute til Solbakk (ikke via Kvalvåg/Idsal)</span>
                 </label>
             </div>
         </header>
@@ -295,10 +295,12 @@
             }
         }
         
-        function checkSolbakkUnder1Hour(estimatedCalls, departureTime) {
+        function checkSolbakkDirect(estimatedCalls, departureTime) {
+            if (!estimatedCalls || estimatedCalls.length === 0) return false;
+            
             // Finn Forsand i listen
             const forsandIndex = estimatedCalls.findIndex(call => 
-                call.quay.id === QUAY_ID
+                call.quay && call.quay.id === QUAY_ID
             );
             
             if (forsandIndex === -1) return false;
@@ -306,13 +308,25 @@
             // Finn Solbakk i listen etter Forsand
             const solbakkIndex = estimatedCalls.findIndex((call, idx) => 
                 idx > forsandIndex && 
+                call.quay && 
                 call.quay.name && 
                 call.quay.name.toLowerCase().includes('solbakk')
             );
             
             if (solbakkIndex === -1) return false;
             
-            // Sjekk reisetid (under 1 time)
+            // Sjekk at bussen IKKE går via Kvalvåg eller Idsal
+            const stopsBetween = estimatedCalls.slice(forsandIndex + 1, solbakkIndex);
+            const goesViaKvalvagOrIdsal = stopsBetween.some(call => {
+                if (!call.quay || !call.quay.name) return false;
+                const name = call.quay.name.toLowerCase();
+                return name.includes('kvalvåg') || name.includes('kvalvaag') || 
+                       name.includes('idsal') || name.includes('idse');
+            });
+            
+            if (goesViaKvalvagOrIdsal) return false;
+            
+            // Sjekk at reisetiden er under 1 time
             const arrivalTime = new Date(estimatedCalls[solbakkIndex].expectedDepartureTime || estimatedCalls[solbakkIndex].aimedDepartureTime);
             const depTime = new Date(departureTime);
             const travelTimeMinutes = (arrivalTime - depTime) / 60000;
@@ -359,19 +373,20 @@
                 return depTime >= now && depTime <= endTime;
             });
             
-            // Filtrer for Solbakk under 1 time hvis aktivert
+            // Filtrer for Solbakk direkterute hvis aktivert
             if (filterSolbakk) {
-                departures = departures.filter(call => 
-                    checkSolbakkUnder1Hour(
+                departures = departures.filter(call => {
+                    if (!call.serviceJourney || !call.serviceJourney.estimatedCalls) return false;
+                    return checkSolbakkDirect(
                         call.serviceJourney.estimatedCalls,
                         call.expectedDepartureTime
-                    )
-                );
+                    );
+                });
             }
             
             if (departures.length === 0) {
                 const message = filterSolbakk 
-                    ? 'Ingen busser til Solbakk under 1 time funnet de neste 24 timene'
+                    ? 'Ingen direkteruter til Solbakk funnet de neste 24 timene'
                     : 'Ingen avganger de neste 24 timene';
                 content.innerHTML = `<div class="no-departures">${message}</div>`;
                 return;
