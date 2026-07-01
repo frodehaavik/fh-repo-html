@@ -430,12 +430,12 @@
                 if (currentDirection === 'fra') {
                     // Fra Forsand: vis ankomst til Jørpeland
                     if (arrivals.jorpeland) {
-                        arrivalTimeHtml = `<div class="arrival-time">Ank. Jørpeland ${formatTime(arrivals.jorpeland)}</div>`;
+                        arrivalTimeHtml = `<div class="arrival-time">${formatTime(arrivals.jorpeland)}</div>`;
                     }
                 } else {
                     // Til Forsand: vis ankomst til Forsand
                     if (arrivals.forsand) {
-                        arrivalTimeHtml = `<div class="arrival-time">Ank. Forsand ${formatTime(arrivals.forsand)}</div>`;
+                        arrivalTimeHtml = `<div class="arrival-time">${formatTime(arrivals.forsand)}</div>`;
                     }
                 }
                 
