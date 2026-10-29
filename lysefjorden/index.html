@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="nb">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#e8f0eb">
+    <title>Lysefjorden | Vind og tidevann</title>
+    <style>
+        :root {
+            color-scheme: light;
+            --ink: #19332f;
+            --muted: #58716b;
+            --green: #17645a;
+            --line: #cfddd6;
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            min-height: 100vh;
+            margin: 0;
+            color: var(--ink);
+            background: linear-gradient(160deg, #e8f0eb 0%, #f8faf8 55%, #eaf1ed 100%);
+            font-family: "Segoe UI", sans-serif;
+            letter-spacing: 0;
+        }
+
+        main { width: min(100% - 32px, 620px); margin: 0 auto; padding: 38px 0 32px; }
+
+        header { padding: 0 0 24px; }
+
+        h1 { margin: 0; font-size: 32px; line-height: 1.15; font-weight: 750; }
+
+        .intro { margin: 10px 0 0; color: var(--muted); font-size: 15px; line-height: 1.5; }
+
+        .stations { margin: 22px 0; padding: 0; list-style: none; }
+
+        .station { border-bottom: 1px solid var(--line); }
+
+        .station-heading {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            padding: 15px 2px 12px;
+            color: var(--ink);
+            text-decoration: none;
+        }
+
+        .station-heading:hover .station-name { color: var(--green); text-decoration: underline; text-underline-offset: 3px; }
+
+        .station-heading:focus-visible { outline: 3px solid #d59a38; outline-offset: 3px; }
+
+        .station-name { font-size: 17px; font-weight: 700; }
+
+        .source { display: block; margin-top: 4px; color: var(--muted); font-size: 13px; font-weight: 400; }
+
+        .arrow { color: var(--green); font-size: 20px; }
+
+        .readings { margin: 0; padding: 0 2px 8px; list-style: none; }
+
+        .reading { display: flex; justify-content: space-between; gap: 16px; padding: 7px 0; border-top: 1px solid #e8efeb; font-size: 14px; }
+
+        .reading-label { color: var(--muted); }
+
+        .reading-value { font-weight: 650; font-variant-numeric: tabular-nums; text-align: right; }
+
+        .updated { margin: 2px 2px 16px; color: var(--muted); font-size: 12px; }
+
+        .tide { padding: 18px 2px 0; border-top: 1px solid var(--line); }
+
+        .tide h2 { margin: 0; font-size: 19px; }
+
+        .tide-source { margin: 5px 0 12px; color: var(--muted); font-size: 13px; }
+
+        .tide-events { margin: 0; padding: 0; list-style: none; }
+
+        .tide-event { display: flex; min-height: 56px; align-items: center; justify-content: space-between; gap: 12px; border-top: 1px solid #e8efeb; }
+
+        .tide-kind { display: block; font-size: 14px; font-weight: 650; }
+
+        .tide-date { display: block; margin-top: 3px; color: var(--muted); font-size: 12px; text-transform: capitalize; }
+
+        .tide-detail { display: flex; align-items: baseline; gap: 14px; font-size: 14px; font-variant-numeric: tabular-nums; }
+
+        .tide-time { font-weight: 700; }
+
+        .tide-height { color: var(--muted); }
+
+        .tide-status { margin: 10px 0 18px; color: var(--muted); font-size: 12px; line-height: 1.5; }
+
+        @media (max-width: 480px) {
+            main { width: min(100% - 28px, 620px); padding-top: 28px; }
+            h1 { font-size: 29px; }
+        }
+
+        @media (prefers-reduced-motion: no-preference) {
+            .station { animation: arrive 300ms ease-out both; }
+            @keyframes arrive { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+        }
+    </style>
+</head>
+<body>
+    <main>
+        <header>
+            <h1>Lysefjorden</h1>
+            <p class="intro">Vind ved brua og tidevann i fjorden.</p>
+        </header>
+
+        <ul class="stations" aria-label="Vindmålere">
+            <li class="station">
+                <a class="station-heading" href="https://www.vegvesen.no/trafikk/vaerveikamera/wind-272477532?lat=58.95104&amp;lng=6.11871&amp;zoom=10" target="_blank" rel="noopener noreferrer">
+                    <span class="station-name">Lysefjordbrua<span class="source">Statens vegvesen</span></span>
+                    <span class="arrow" aria-hidden="true">&#8599;</span>
+                </a>
+                <ul class="readings" aria-label="Siste målinger">
+                    <li class="reading"><span class="reading-label">Vindstyrke</span><span class="reading-value" id="wind-speed">-</span></li>
+                    <li class="reading"><span class="reading-label">Vindretning</span><span class="reading-value" id="wind-direction">-</span></li>
+                    <li class="reading"><span class="reading-label">Vindkast</span><span class="reading-value" id="wind-gust">-</span></li>
+                    <li class="reading"><span class="reading-label">Sidevind</span><span class="reading-value" id="crosswind-gust">-</span></li>
+                </ul>
+                <p class="updated" id="updated" role="status" aria-live="polite">Henter målinger ...</p>
+            </li>
+        </ul>
+
+        <section class="tide" aria-labelledby="tide-title">
+            <h2 id="tide-title">Flo og fjære</h2>
+            <p class="tide-source">Ved Lysefjordbrua · prognose fra Kartverket</p>
+            <ol class="tide-events" id="tide-events" aria-label="Neste flo og fjære"></ol>
+            <p class="tide-status" id="tide-status" role="status" aria-live="polite">Henter tidevann ...</p>
+        </section>
+
+    </main>
+    <script>
+        const apiUrl = 'https://road-weather-and-view.atlas.vegvesen.no/weather-information/measurement-sites/wind-272477532';
+        const numberFormat = new Intl.NumberFormat('nb-NO', { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+        const timeFormat = new Intl.DateTimeFormat('nb-NO', { timeZone: 'Europe/Oslo', hour: '2-digit', minute: '2-digit' });
+        const directions = ['Nord', 'Nordøst', 'Øst', 'Sørøst', 'Sør', 'Sørvest', 'Vest', 'Nordvest'];
+
+        function speedText(value) {
+            return Number.isFinite(value) ? `${numberFormat.format(value)} m/s` : '-';
+        }
+
+        function directionText(value) {
+            return Number.isFinite(value) ? directions[Math.round(value / 45) % directions.length] : '-';
+        }
+
+        async function updateMeasurements() {
+            const status = document.getElementById('updated');
+
+            try {
+                const response = await fetch(apiUrl, {
+                    headers: {
+                        accept: 'application/vnd.svv.v1+json; charset=utf-8',
+                        'X-System-ID': 'vvtraf'
+                    },
+                    cache: 'no-store'
+                });
+                if (!response.ok) throw new Error(`HTTP ${response.status}`);
+
+                const result = await response.json();
+                const site = result.measurementSites?.find(item => item.id === 'wind-272477532');
+                const weather = site?.weatherData;
+                if (!weather || weather.status !== 'OK') throw new Error('Måledata er ikke tilgjengelig');
+
+                document.getElementById('wind-speed').textContent = speedText(weather.windSpeed);
+                document.getElementById('wind-direction').textContent = directionText(weather.windDirectionBearing);
+                document.getElementById('wind-gust').textContent = speedText(weather.maximumWindSpeed);
+                document.getElementById('crosswind-gust').textContent = speedText(weather.windGustSpeed90);
+
+                const updated = new Date(weather.lastUpdated);
+                status.textContent = Number.isNaN(updated.getTime())
+                    ? 'Målinger fra Statens vegvesen'
+                    : `Oppdatert kl. ${timeFormat.format(updated)}`;
+                status.dateTime = Number.isNaN(updated.getTime()) ? '' : updated.toISOString();
+            } catch {
+                status.textContent = 'Klarte ikke å hente ferske målinger';
+            }
+        }
+
+        updateMeasurements();
+        window.setInterval(updateMeasurements, 60000);
+
+        const tideApiUrl = 'https://vannstand.kartverket.no/tideapi.php';
+        const tideHeightFormat = new Intl.NumberFormat('nb-NO', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        const tideTimeFormat = new Intl.DateTimeFormat('nb-NO', { timeZone: 'Europe/Oslo', hour: '2-digit', minute: '2-digit' });
+        const tideDateFormat = new Intl.DateTimeFormat('nb-NO', { timeZone: 'Europe/Oslo', weekday: 'short', day: 'numeric', month: 'short' });
+
+        function osloDateString(date) {
+            const parts = Object.fromEntries(new Intl.DateTimeFormat('en-CA', {
+                timeZone: 'Europe/Oslo', year: 'numeric', month: '2-digit', day: '2-digit'
+            }).formatToParts(date).map(part => [part.type, part.value]));
+            return `${parts.year}-${parts.month}-${parts.day}`;
+        }
+
+        function dateAfter(dateString, days) {
+            const [year, month, day] = dateString.split('-').map(Number);
+            return new Date(Date.UTC(year, month - 1, day + days)).toISOString().slice(0, 10);
+        }
+
+        async function updateTides() {
+            const status = document.getElementById('tide-status');
+            const list = document.getElementById('tide-events');
+
+            try {
+                const today = osloDateString(new Date());
+                const params = new URLSearchParams({
+                    tide_request: 'locationdata',
+                    lat: '58.9234',
+                    lon: '6.0987',
+                    fromtime: `${today}T00:00`,
+                    totime: `${dateAfter(today, 2)}T00:00`,
+                    datatype: 'tab',
+                    refcode: 'cd',
+                    lang: 'nb',
+                    interval: '60',
+                    dst: '1',
+                    tzone: '1'
+                });
+                const response = await fetch(`${tideApiUrl}?${params}`, { cache: 'no-store' });
+                if (!response.ok) throw new Error(`HTTP ${response.status}`);
+
+                const xml = new DOMParser().parseFromString(await response.text(), 'application/xml');
+                if (xml.querySelector('parsererror')) throw new Error('Ugyldig svar fra Kartverket');
+
+                const location = xml.querySelector('locationdata location');
+                const events = Array.from(xml.querySelectorAll('data waterlevel'))
+                    .map(element => ({
+                        time: new Date(element.getAttribute('time')),
+                        type: element.getAttribute('flag'),
+                        height: Number(element.getAttribute('value'))
+                    }))
+                    .filter(event => Number.isFinite(event.time.getTime()) && event.time > new Date() && Number.isFinite(event.height))
+                    .slice(0, 4);
+
+                if (!location || events.length === 0) throw new Error('Ingen tidevannstider tilgjengelig');
+
+                list.replaceChildren();
+                for (const event of events) {
+                    const item = document.createElement('li');
+                    item.className = 'tide-event';
+
+                    const label = document.createElement('span');
+                    const kind = document.createElement('span');
+                    kind.className = 'tide-kind';
+                    kind.textContent = event.type === 'high' ? 'Flo' : 'Fjære';
+                    const date = document.createElement('span');
+                    date.className = 'tide-date';
+                    date.textContent = tideDateFormat.format(event.time);
+                    label.append(kind, date);
+
+                    const details = document.createElement('span');
+                    details.className = 'tide-detail';
+                    const time = document.createElement('time');
+                    time.className = 'tide-time';
+                    time.dateTime = event.time.toISOString();
+                    time.textContent = tideTimeFormat.format(event.time);
+                    const height = document.createElement('span');
+                    height.className = 'tide-height';
+                    height.textContent = `${tideHeightFormat.format(event.height / 100)} m`;
+                    details.append(time, height);
+
+                    item.append(label, details);
+                    list.append(item);
+                }
+
+                const station = location.getAttribute('obsname') || location.getAttribute('name') || 'Kartverket';
+                status.textContent = `Beregnet fra ${station}`;
+            } catch {
+                list.replaceChildren();
+                status.textContent = 'Klarte ikke å hente tidevann fra Kartverket.';
+            }
+        }
+
+        updateTides();
+        window.setInterval(updateTides, 3600000);
+    </script>
+</body>
+</html>
