@@ -3,63 +3,300 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Alderskalkulator</title>
+  <meta name="theme-color" content="#f2f5ef">
+  <title>Aldersoversikt</title>
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      padding: 20px;
-      max-width: 400px;
-      margin: auto;
-      background-color: #f4f4f4;
+    :root {
+      color-scheme: light;
+      --ink: #20342e;
+      --muted: #64736d;
+      --green: #2f6955;
+      --line: #dce5dd;
+      --paper: #fffefa;
     }
-    h1 {
-      text-align: center;
-    }
-    input, button {
-      width: 100%;
-      padding: 12px;
-      margin-top: 10px;
-      font-size: 18px;
+
+    * {
       box-sizing: border-box;
     }
-    #result {
-      margin-top: 20px;
-      font-size: 20px;
+
+    body {
+      min-height: 100vh;
+      margin: 0;
+      padding: 28px 16px 48px;
+      color: var(--ink);
+      background-color: #f2f5ef;
+      background-image: radial-gradient(#dce5dd 0.7px, transparent 0.7px);
+      background-size: 18px 18px;
+      font-family: "Trebuchet MS", sans-serif;
+    }
+
+    main {
+      width: min(100%, 620px);
+      margin: 0 auto;
+    }
+
+    header {
+      padding: 14px 4px 26px;
+    }
+
+    .eyebrow {
+      margin: 0 0 8px;
+      color: var(--green);
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+
+    h1 {
+      margin: 0;
+      font-family: Georgia, serif;
+      font-size: 34px;
+      font-weight: 500;
+    }
+
+    header p:last-child {
+      margin: 8px 0 0;
+      color: var(--muted);
+      font-size: 15px;
+    }
+
+    .overview-heading {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 12px;
+      margin: 30px 4px 12px;
+    }
+
+    h2 {
+      margin: 0;
+      font-family: Georgia, serif;
+      font-size: 22px;
+      font-weight: 500;
+    }
+
+    #people-count {
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    #people-list {
+      display: grid;
+      gap: 9px;
+    }
+
+    .person {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 16px 18px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--paper);
+    }
+
+    .person-name {
+      margin: 0;
+      font-size: 17px;
+      font-weight: 700;
+      overflow-wrap: anywhere;
+    }
+
+    .person-date {
+      margin: 5px 0 0;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .person-age {
+      flex: 0 0 auto;
+      color: var(--green);
+      font-family: Georgia, serif;
+      font-size: 16px;
+      text-align: right;
+    }
+
+    #empty-state {
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    #empty-state {
+      margin: 0;
+      padding: 22px 18px;
+      border: 1px dashed #cbd7ce;
+      border-radius: 8px;
       text-align: center;
+    }
+
+    @media (max-width: 560px) {
+      body {
+        padding: 18px 13px 36px;
+      }
+
+      header {
+        padding-top: 8px;
+      }
+
+      .person {
+        gap: 9px;
+        padding: 14px 12px;
+      }
+
+      .person-age {
+        max-width: 46%;
+        font-size: 14px;
+      }
+
     }
   </style>
 </head>
 <body>
+  <script>
+    // LEGG TIL PERSONER HER. Datoformat: DD.MM.ÅÅÅÅ, for eksempel 15.04.1990.
+    const people = [
+      { name: 'Frode Haavik', dob: '17.08.1973' },
+      { name: 'Elin Christina Haavik', dob: '19.10.1971' },
+      { name: 'Liv Haavik', dob: '06.11.1951' },
+      { name: 'Odd Trygve Haavik', dob: '17.04.1950' },
+      { name: 'Hedda Aarskog', dob: '28.02.2002' },
+      { name: 'Andreas Haavik', dob: '13.01.2004' },
+      { name: 'Oda Karoline Haavik', dob: '30.12.2008' },
+      { name: 'Eirik Haavik', dob: '17.03.1977' },
+      { name: 'Joana Haavik', dob: '13.08.1980' },
+      { name: 'Kristina Haavik', dob: '16.10.2016' },
+      { name: 'Isak Haavik', dob: '09.08.2021' },
+      { name: 'Lukas Aarskog', dob: '12.05.2023' },
+      { name: 'Lea Aarskog', dob: '14.02.2025' },
+      { name: 'Ådne Tangen Aarskog', dob: '24.04.2002' },
+      { name: 'Jonn Arvid Thorsen', dob: '25.07.1942' },
+      { name: 'Aud Kristin Thorsen', dob: '17.06.1943' },
+      { name: 'Jon Audun Thorsen', dob: '25.09.1969' },
+      { name: 'Anne Guro Malek Thorsen', dob: '01.07.1979' },
+      { name: 'Tommy Malek', dob: '04.07.1980' },
+    ];
+  </script>
 
-  <h1>Hvor gammel er du?</h1>
+  <main>
+    <header>
+      <p class="eyebrow">Familie og venner</p>
+      <h1>Aldersoversikt</h1>
+      <p>Se hvor mange år, måneder og dager det har gått.</p>
+    </header>
 
-  <label for="dob">Fødselsdato:</label>
-  <input type="date" id="dob" max="{{TODAY}}" required>
-
-  <button onclick="calculateAge()">Beregn alder</button>
-
-  <div id="result"></div>
+    <section aria-labelledby="overview-title">
+      <div class="overview-heading">
+        <h2 id="overview-title">Personer</h2>
+        <span id="people-count"></span>
+      </div>
+      <div id="people-list"></div>
+    </section>
+  </main>
 
   <script>
-    function calculateAge() {
-      const dobInput = document.getElementById('dob').value;
-      if (!dobInput) {
-        document.getElementById('result').innerText = 'Vennligst skriv inn en dato.';
+    const peopleList = document.getElementById('people-list');
+    const peopleCount = document.getElementById('people-count');
+
+    function parseNorwegianDate(dateString) {
+      const match = /^(\d{1,2})\.(\d{1,2})\.(\d{4})$/.exec(dateString);
+      if (!match) {
+        return null;
+      }
+
+      const [, dayText, monthText, yearText] = match;
+      const day = Number(dayText);
+      const month = Number(monthText);
+      const year = Number(yearText);
+      const daysInMonth = new Date(year, month, 0).getDate();
+
+      if (month < 1 || month > 12 || day < 1 || day > daysInMonth) {
+        return null;
+      }
+
+      return { year, month, day };
+    }
+
+    function getAge(birthDate) {
+      const current = new Date();
+      let years = current.getFullYear() - birthDate.year;
+      let months = current.getMonth() + 1 - birthDate.month;
+      let days = current.getDate() - birthDate.day;
+
+      if (days < 0) {
+        months -= 1;
+        days += new Date(current.getFullYear(), current.getMonth(), 0).getDate();
+      }
+      if (months < 0) {
+        years -= 1;
+        months += 12;
+      }
+
+      return { years, months, days };
+    }
+
+    function daysUntilBirthday(birthDate) {
+      const today = new Date();
+      const todayUtc = Date.UTC(today.getFullYear(), today.getMonth(), today.getDate());
+      let nextBirthdayUtc = Date.UTC(today.getFullYear(), birthDate.month - 1, birthDate.day);
+
+      if (nextBirthdayUtc < todayUtc) {
+        nextBirthdayUtc = Date.UTC(today.getFullYear() + 1, birthDate.month - 1, birthDate.day);
+      }
+
+      return (nextBirthdayUtc - todayUtc) / 86400000;
+    }
+
+    function formatAge(age) {
+      return `${age.years} år, ${age.months} mnd. og ${age.days} dager`;
+    }
+
+    function renderPeople() {
+      peopleList.replaceChildren();
+      const sortedPeople = [...people].sort((first, second) => {
+        const firstDate = parseNorwegianDate(first.dob);
+        const secondDate = parseNorwegianDate(second.dob);
+        const firstDays = firstDate ? daysUntilBirthday(firstDate) : Infinity;
+        const secondDays = secondDate ? daysUntilBirthday(secondDate) : Infinity;
+
+        return firstDays - secondDays || first.name.localeCompare(second.name, 'no');
+      });
+      peopleCount.textContent = `${people.length} ${people.length === 1 ? 'person' : 'personer'}`;
+
+      if (sortedPeople.length === 0) {
+        const emptyState = document.createElement('p');
+        emptyState.id = 'empty-state';
+        emptyState.textContent = 'Ingen personer lagt til ennå.';
+        peopleList.append(emptyState);
         return;
       }
 
-      const today = new Date();
-      const dob = new Date(dobInput);
-      let age = today.getFullYear() - dob.getFullYear();
-      const m = today.getMonth() - dob.getMonth();
+      sortedPeople.forEach((person) => {
+        const row = document.createElement('article');
+        row.className = 'person';
 
-      if (m < 0 || (m === 0 && today.getDate() < dob.getDate())) {
-        age--;
-      }
+        const details = document.createElement('div');
+        const name = document.createElement('p');
+        name.className = 'person-name';
+        name.textContent = person.name;
+        const date = document.createElement('p');
+        date.className = 'person-date';
+        const birthDate = parseNorwegianDate(person.dob);
+        date.textContent = birthDate
+          ? `Født ${new Intl.DateTimeFormat('nb-NO', { dateStyle: 'long', timeZone: 'UTC' }).format(new Date(Date.UTC(birthDate.year, birthDate.month - 1, birthDate.day)))}`
+          : `Ugyldig fødselsdato: ${person.dob}`;
+        details.append(name, date);
 
-      document.getElementById('result').innerText = `Du er ${age} år gammel.`;
+        const age = document.createElement('span');
+        age.className = 'person-age';
+        age.textContent = birthDate ? formatAge(getAge(birthDate)) : 'Ugyldig dato';
+
+        row.append(details, age);
+        peopleList.append(row);
+      });
     }
-  </script>
 
+    renderPeople();
+  </script>
 </body>
 </html>
