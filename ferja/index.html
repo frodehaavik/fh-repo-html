@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="nb">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#17645a">
+    <title>Ferja | Oanes og Lauvvik</title>
+    <style>
+        :root { color-scheme: light; --ink: #172e2b; --muted: #566d68; --green: #17645a; --line: #d7e3df; }
+        * { box-sizing: border-box; }
+        body { margin: 0; background: #edf3f0; color: var(--ink); font-family: "Segoe UI", sans-serif; letter-spacing: 0; }
+        main { max-width: 760px; margin: auto; padding: 28px 18px 32px; }
+        header { padding-bottom: 22px; border-bottom: 1px solid var(--line); }
+        .eyebrow { margin: 0 0 8px; color: var(--green); font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0; }
+        h1 { margin: 0; font-size: 30px; line-height: 1.2; font-weight: 750; }
+        .clock-row { display: flex; justify-content: space-between; align-items: baseline; flex-wrap: wrap; gap: 8px; margin-top: 16px; color: var(--muted); font-size: 14px; }
+        #clock { font-size: 20px; font-weight: 650; color: var(--ink); font-variant-numeric: tabular-nums; }
+        .departures { display: grid; gap: 16px; margin: 22px 0; }
+        .departure { overflow: hidden; background: #fff; border: 1px solid var(--line); border-radius: 8px; }
+        .port { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 16px 18px; border-bottom: 1px solid var(--line); }
+        h2 { margin: 0; font-size: 21px; }
+        .destination { margin: 4px 0 0; font-size: 13px; color: var(--muted); }
+        .port-mark { width: 38px; height: 38px; color: var(--green); flex: 0 0 auto; }
+        .next { padding: 18px; background: #f5faf7; }
+        .label { font-size: 13px; color: var(--muted); }
+        .next-line { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-top: 4px; }
+        .next-time { font-size: 46px; line-height: 1.15; font-weight: 700; font-variant-numeric: tabular-nums; }
+        .countdown { text-align: right; font-size: 14px; font-weight: 650; color: var(--green); max-width: 140px; }
+        .day-label { margin-top: 7px; color: var(--muted); font-size: 13px; min-height: 18px; }
+        .following { margin: 0; padding: 0 18px; list-style: none; }
+        .following li { display: flex; justify-content: space-between; gap: 12px; padding: 12px 0; border-bottom: 1px solid var(--line); font-size: 14px; }
+        .following time { font-weight: 650; font-variant-numeric: tabular-nums; }
+        .following span { color: var(--muted); }
+        .daily { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px; padding: 13px 18px; font-size: 12px; color: var(--muted); }
+        .daily strong { color: var(--ink); font-weight: 650; }
+        .notice { padding: 14px 0 14px 14px; border-left: 3px solid #bd8729; font-size: 13px; line-height: 1.6; margin-bottom: 22px; }
+        .notice strong { display: block; }
+        details { border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+        summary { padding: 16px 0; font-weight: 650; cursor: pointer; }
+        summary:focus-visible { outline: 2px solid var(--green); outline-offset: 3px; }
+        .schedule { padding-bottom: 18px; }
+        .schedule h3 { margin: 18px 0 8px; font-size: 16px; }
+        .schedule p { font-size: 13px; line-height: 1.7; margin: 6px 0; }
+        .times { display: flex; flex-wrap: wrap; gap: 6px 13px; margin: 8px 0 14px; font-size: 14px; font-variant-numeric: tabular-nums; }
+        footer { padding-top: 20px; font-size: 12px; line-height: 1.7; color: var(--muted); }
+        footer p { margin: 0 0 6px; }
+        noscript { display: block; padding: 16px; background: #fff3d8; }
+        @media (min-width: 620px) { main { padding-top: 42px; } .departures { grid-template-columns: 1fr 1fr; } }
+        @media (prefers-reduced-motion: no-preference) { .departure { animation: arrive 350ms ease-out; } @keyframes arrive { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } } }
+    </style>
+</head>
+<body>
+    <main>
+        <header>
+            <p class="eyebrow">H&oslash;gsfjordsambandet</p>
+            <h1>Oanes &harr; Lauvvik</h1>
+            <div class="clock-row"><span id="today">Norsk tid</span><time id="clock">--:--:--</time></div>
+        </header>
+        <noscript>Sl&aring; p&aring; JavaScript for &aring; se neste ferje. Rutetidene st&aring;r under &laquo;Se hele ruteplanen&raquo;.</noscript>
+        <section class="departures" aria-label="Neste ferje fra hver kai">
+            <article class="departure" id="oanes" aria-labelledby="oanes-title">
+                <div class="port"><div><h2 id="oanes-title">Fra Oanes</h2><p class="destination">Til Lauvvik</p></div><svg class="port-mark" viewBox="0 0 40 40" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M8 21h24l-4 9H12zM13 21V11h14v10M17 11V7h6v4M17 16h6M5 34c3-3 5 3 8 0s5 3 8 0 5 3 8 0 4 1 6 0"/></svg></div>
+                <div class="next"><div class="label">Neste avgang</div><div class="next-line"><time class="next-time">--:--</time><span class="countdown"></span></div><div class="day-label"></div></div>
+                <ol class="following" aria-label="P&aring;f&oslash;lgende avganger"></ol>
+                <div class="daily"><span>F&oslash;rste i dag <strong class="first">--:--</strong></span><span>Siste i dag <strong class="last">--:--</strong></span></div>
+            </article>
+            <article class="departure" id="lauvvik" aria-labelledby="lauvvik-title">
+                <div class="port"><div><h2 id="lauvvik-title">Fra Lauvvik</h2><p class="destination">Til Oanes</p></div><svg class="port-mark" viewBox="0 0 40 40" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M8 21h24l-4 9H12zM13 21V11h14v10M17 11V7h6v4M17 16h6M5 34c3-3 5 3 8 0s5 3 8 0 5 3 8 0 4 1 6 0"/></svg></div>
+                <div class="next"><div class="label">Neste avgang</div><div class="next-line"><time class="next-time">--:--</time><span class="countdown"></span></div><div class="day-label"></div></div>
+                <ol class="following" aria-label="P&aring;f&oslash;lgende avganger"></ol>
+                <div class="daily"><span>F&oslash;rste i dag <strong class="first">--:--</strong></span><span>Siste i dag <strong class="last">--:--</strong></span></div>
+            </article>
+        </section>
+        <aside class="notice"><strong id="service-status">Julen 2026 &middot; Forel&oslash;pig plan</strong>Sambandet er stengt fra og med 24. desember 2026 til og med 1. januar 2027.</aside>
+        <details>
+            <summary>Se hele ruteplanen</summary>
+            <div class="schedule">
+                <h3>Fra Oanes</h3>
+                <p><strong>Mandag til fredag, morgen</strong></p>
+                <div class="times"><span>06:00</span><span>06:30</span><span>07:00</span><span>07:30</span><span>08:00</span><span>08:30</span></div>
+                <p><strong>Alle dager</strong></p>
+                <div class="times"><span>09:00</span><span>10:00</span><span>11:00</span><span>12:00</span><span>13:00</span><span>14:00</span><span>14:30</span><span>15:00</span><span>15:30</span><span>16:00</span><span>16:30</span><span>17:00</span><span>17:30</span><span>18:00</span></div>
+                <h3>Fra Lauvvik</h3>
+                <p><strong>Mandag til fredag, morgen</strong></p>
+                <div class="times"><span>06:15</span><span>06:45</span><span>07:15</span><span>07:45</span><span>08:15</span><span>08:45</span></div>
+                <p><strong>Alle dager</strong></p>
+                <div class="times"><span>09:15</span><span>10:15</span><span>11:15</span><span>12:15</span><span>13:15</span><span>14:15</span><span>14:45</span><span>15:15</span><span>15:45</span><span>16:15</span><span>16:45</span><span>17:15</span><span>17:45</span><span>18:15</span></div>
+                <p>Ved gjenst&aring;ende biler seiles ekstraturer. Disse har ikke faste avgangstider.</p>
+            </div>
+        </details>
+        <footer><p>Planlagte avganger fra oppgitt ruteplan, ikke sanntidsdata. Endringer og innstillinger kan forekomme.</p><p>Alle klokkeslett er norsk tid (Europe/Oslo).</p></footer>
+    </main>
+    <script>
+        const zone = 'Europe/Oslo';
+        const localParts = new Intl.DateTimeFormat('en-GB', {
+            timeZone: zone, year: 'numeric', month: '2-digit', day: '2-digit',
+            hour: '2-digit', minute: '2-digit', second: '2-digit', hourCycle: 'h23'
+        });
+        const dateFormat = new Intl.DateTimeFormat('nb-NO', {
+            timeZone: 'UTC', weekday: 'long', day: 'numeric', month: 'long', year: 'numeric'
+        });
+        const clockFormat = new Intl.DateTimeFormat('nb-NO', {
+            timeZone: zone, hour: '2-digit', minute: '2-digit', second: '2-digit'
+        });
+        const dayLength = 86400000;
+
+        function osloNow(now) {
+            const parts = Object.fromEntries(localParts.formatToParts(now).map(part => [part.type, part.value]));
+            return {
+                day: Date.UTC(Number(parts.year), Number(parts.month) - 1, Number(parts.day)),
+                minute: Number(parts.hour) * 60 + Number(parts.minute) + Number(parts.second) / 60
+            };
+        }
+
+        function isClosed(day) {
+            return day >= Date.UTC(2026, 11, 24) && day <= Date.UTC(2027, 0, 1);
+        }
+
+        function departuresFor(day, offset) {
+            if (isClosed(day)) return [];
+            const weekday = new Date(day).getUTCDay();
+            const times = [];
+            if (weekday !== 0 && weekday !== 6) {
+                for (let minute = 360; minute < 540; minute += 30) times.push(minute + offset);
+            }
+            for (let minute = 540; minute < 840; minute += 60) times.push(minute + offset);
+            for (let minute = 840; minute <= 1080; minute += 30) times.push(minute + offset);
+            return times;
+        }
+
+        function upcoming(now, offset, count = 3) {
+            const local = osloNow(now);
+            const result = [];
+            for (let day = local.day; day <= local.day + 370 * dayLength && result.length < count; day += dayLength) {
+                for (const minute of departuresFor(day, offset)) {
+                    if (day === local.day && minute < local.minute) continue;
+                    result.push({ day, minute });
+                    if (result.length === count) break;
+                }
+            }
+            return result;
+        }
+
+        function timeText(minute) {
+            return `${String(Math.floor(minute / 60)).padStart(2, '0')}:${String(minute % 60).padStart(2, '0')}`;
+        }
+
+        function dayText(day, today) {
+            if (day === today) return 'I dag';
+            if (day === today + dayLength) return 'I morgen';
+            return dateFormat.format(new Date(day));
+        }
+
+        function update(now = new Date()) {
+            const local = osloNow(now);
+            document.getElementById('today').textContent = dateFormat.format(new Date(local.day));
+            document.getElementById('clock').textContent = clockFormat.format(now);
+            document.getElementById('clock').dateTime = now.toISOString();
+            document.getElementById('service-status').textContent = isClosed(local.day)
+                ? 'Julestengt i dag \u00b7 Forel\u00f8pig plan' : 'Julen 2026 \u00b7 Forel\u00f8pig plan';
+
+            for (const [id, offset] of [['oanes', 0], ['lauvvik', 15]]) {
+                const card = document.getElementById(id);
+                const today = departuresFor(local.day, offset);
+                const next = upcoming(now, offset);
+                const first = next[0];
+                card.querySelector('.first').textContent = today.length ? timeText(today[0]) : 'Stengt';
+                card.querySelector('.last').textContent = today.length ? timeText(today[today.length - 1]) : 'Stengt';
+                card.querySelector('.next-time').textContent = first ? timeText(first.minute) : '--:--';
+                if (first) {
+                    const minutes = Math.ceil(first.minute - local.minute);
+                    card.querySelector('.countdown').textContent = first.day !== local.day
+                        ? dayText(first.day, local.day)
+                        : minutes === 0 ? 'G\u00e5r n\u00e5' : minutes < 60 ? `Om ${minutes} min`
+                        : `Om ${Math.floor(minutes / 60)} t${minutes % 60 ? ` ${minutes % 60} min` : ''}`;
+                    card.querySelector('.day-label').textContent = first.day === local.day ? 'I dag'
+                        : isClosed(local.day) ? 'F\u00f8rste avgang etter juleoppholdet' : 'Ingen flere avganger i dag';
+                }
+                const rows = next.slice(1).map(departure => `${departure.day}-${departure.minute}`).join(',');
+                const list = card.querySelector('.following');
+                if (list.dataset.rows !== rows) {
+                    list.replaceChildren(...next.slice(1).map((departure, index) => {
+                        const row = document.createElement('li');
+                        const label = document.createElement('span');
+                        const time = document.createElement('time');
+                        label.textContent = `${index === 0 ? 'Deretter' : 'Neste etter det'} \u00b7 ${dayText(departure.day, local.day).toLowerCase()}`;
+                        time.textContent = timeText(departure.minute);
+                        row.append(label, time);
+                        return row;
+                    }));
+                    list.dataset.rows = rows;
+                }
+            }
+        }
+
+        update();
+        setInterval(() => update(), 1000);
+        document.addEventListener('visibilitychange', () => { if (!document.hidden) update(); });
+    </script>
+</body>
+</html>
