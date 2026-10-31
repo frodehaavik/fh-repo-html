@@ -1,44 +1,83 @@
-<!doctype html><html lang="no"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Mine saker</title><style>:root{font-family:system-ui,-apple-system,sans-serif;color:#17243a;background:#f3f6fa}body{margin:0}.wrap{max-width:620px;margin:auto;padding:24px 15px}h1{font-size:1.55rem;margin:0 0 5px}.muted{color:#64748b;font-size:.9rem}.case{background:white;border:1px solid #dce4ed;border-radius:15px;margin-top:13px;overflow:hidden;box-shadow:0 3px 12px #142b4810}.head{display:flex;align-items:center;justify-content:space-between;width:100%;border:0;background:none;padding:18px;text-align:left;color:inherit;cursor:pointer;font:inherit}.num{font-size:.78rem;color:#245a9b;font-weight:750}.name{font-size:1.08rem;font-weight:700;margin-top:5px}.desc{font-size:.88rem;color:#64748b;margin-top:5px}.details{border-top:1px solid #e7ecf2;padding:16px;display:none}.case.open .details{display:block}.pill{display:inline-block;background:#edf2f8;border-radius:30px;padding:5px 10px;font-size:.8rem}a{color:#1557a0;overflow-wrap:anywhere}.activity{border-top:1px solid #e8edf3;padding:10px 0}.activity small{display:block;color:#64748b;margin-top:4px}.btn{background:#1c538d;color:white;border:0;border-radius:9px;padding:10px 13px;cursor:pointer;font-weight:650}.error{color:#9b3b23}.status{margin:12px 0;line-height:1.5}</style></head><body><main class="wrap"><h1>Mine saker</h1><p class="muted">Trykk på en sak for å hente opplysninger fra offentlig API.</p><div id="cases"></div><p class="muted">Offentlige journalposter viser aktivitet, men dokumenterer ikke nødvendigvis om en beslutning er tatt.</p></main><script>
-/* REDIGER KUN DENNE LISTEN. Nummer og hjelpetekst er obligatoriske.
-   For eInnsyn: legg gjerne inn eksternId fra sakslenken, slik som nedenfor.
-   For Stortinget: bruk kilde:'stortinget', stortingId:'12345'. */
-const saker = [
- {nummer:'22/868',tekst:'Kommunegrensejustering',beskrivelse:'Forsand fra Sandnes til Strand kommune',kilde:'einnsyn',eksternId:'http://data.einnsyn.no/noark4/Saksmappe--972417858--868--2022',lenke:'https://einnsyn.no/saksmappe?id=http%3A%2F%2Fdata.einnsyn.no%2Fnoark4%2FSaksmappe--972417858--868--2022',sistKjent:'Ingen beslutning tatt (ifølge mottatt e-post; dato ikke oppgitt)'},
- // {nummer:'2025/1234',tekst:'Min neste sak',beskrivelse:'Kort hjelpetekst',kilde:'einnsyn'},
- // {nummer:'47163',tekst:'Stortingssak',beskrivelse:'Kort hjelpetekst',kilde:'stortinget',stortingId:'47163'}
-];
-const root=document.querySelector('#cases');
-function el(tag,cl,txt){let x=document.createElement(tag);if(cl)x.className=cl;if(txt!==undefined)x.textContent=txt;return x}
-function link(parent,url,txt){if(!url)return;const a=el('a','',txt);a.href=url;a.target='_blank';a.rel='noopener noreferrer';parent.append(a)}
-function date(v){if(!v)return 'Dato ikke oppgitt';const d=new Date(v);return isNaN(d)?String(v):d.toLocaleDateString('nb-NO')}
-function title(v){return v?.offentligTittel||v?.tittel||v?.title||v?.beskrivelse||'Uten tittel'}
-async function json(url){let r=await fetch(url,{headers:{Accept:'application/json'}});if(!r.ok)throw new Error('HTTP '+r.status);return r.json()}
-async function xml(url){let r=await fetch(url);if(!r.ok)throw new Error('HTTP '+r.status);let doc=new DOMParser().parseFromString(await r.text(),'text/xml');if(doc.querySelector('parsererror'))throw Error('Ugyldig XML');return doc}
-function textTag(doc,name){const n=[...doc.getElementsByTagName('*')].find(e=>e.localName===name);return n?.textContent?.trim()||''}
-async function load(s,area){area.replaceChildren(el('p','muted','Henter opplysninger …'));const box=el('div');area.replaceChildren(box);if(s.sistKjent){box.append(el('div','status','Sist kjent: '+s.sistKjent))}
- if(s.lenke){const p=el('p');link(p,s.lenke,'Åpne offisiell saksmappe ↗');box.append(p)}
- if(s.kilde==='stortinget'){
-  if(!s.stortingId){box.append(el('p','error','Mangler Stortingets interne saks-ID.'));return}
-  try{const doc=await xml('https://data.stortinget.no/eksport/sak?sakid='+encodeURIComponent(s.stortingId));box.append(el('p','','Sakstittel: '+(textTag(doc,'tittel')||'Ikke oppgitt')));box.append(el('p','','Status i API: '+(textTag(doc,'status')||'Ikke oppgitt')));box.append(el('p','','Ferdigbehandlet: '+(textTag(doc,'ferdigbehandlet')||'Ikke oppgitt')))}catch(e){box.append(el('p','error','Kunne ikke hente Stortingsdata ('+e.message+'). Nettleseren kan blokkere API-kallet.'))}return}
- if(s.kilde!=='einnsyn'){box.append(el('p','error','Ukjent kilde.'));return}
- try{
-  // eInnsyn støtter eksterne ID-er fra gamle eInnsyn-lenker.
-  // Dersom bare saksnummer finnes, må API-søk avgrenses og resultat bekreftes mot virksomhet.
-  if(!s.eksternId){box.append(el('p','error','For sikker identifisering trenger denne saken eksternId fra eInnsyn-lenken. Saksnummer er ikke unikt mellom offentlige virksomheter.'));return}
-  const id=encodeURIComponent(s.eksternId);
-  const obj=await json('https://api.einnsyn.no/saksmappe/'+id);
-  const realId=obj.id||s.eksternId;
-  box.append(el('p','','Sakstittel: '+title(obj)));
-  box.append(el('p','','Saksnummer i registeret: '+(obj.saksnummer||s.nummer)));
-  const response=await json('https://api.einnsyn.no/saksmappe/'+encodeURIComponent(realId)+'/journalpost?limit=100');
-  let items=Array.isArray(response.items)?response.items:[];
-  const expanded=await Promise.all(items.slice(0,25).map(async x=>typeof x==='string'?json('https://api.einnsyn.no/journalpost/'+encodeURIComponent(x)).catch(()=>null):x));
-  const records=expanded.filter(Boolean).sort((a,b)=>String(b.journaldato||b.dokumentetsDato||b.opprettetDato||'').localeCompare(String(a.journaldato||a.dokumentetsDato||a.opprettetDato||'')));
-  box.append(el('p','',records.length?'Siste registrerte journalposter:':'Ingen journalposter returnert.'));
-  records.slice(0,8).forEach(p=>{const d=el('div','activity');d.append(el('div','',title(p)));d.append(el('small','',date(p.journaldato||p.dokumentetsDato||p.opprettetDato)));box.append(d)});
-  if(response.next)box.append(el('p','muted','Flere journalposter finnes. Her vises bare de første.'));
-  box.append(el('p','muted','Opplysningene over er hentet fra eInnsyn. Dette er ikke en automatisk konklusjon om saken er avgjort.'));
- }catch(e){box.append(el('p','error','API-oppslag mislyktes ('+e.message+'). Det kan skyldes krav om API-nøkkel, CORS eller at gammel ekstern ID ikke støttes for dette oppslaget.'));box.append(el('p','muted','Sakslenken over fungerer uavhengig av API-oppslaget. Ikke legg API-nøkler inn i offentlig HTML.'))}
+<!doctype html>
+<html lang="no">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#10253c">
+<title>Mine saker</title>
+<style>
+:root{color-scheme:light;--navy:#10253c;--blue:#1d5d99;--muted:#66758a;--bg:#f3f6fa;--line:#e4eaf1}*{box-sizing:border-box}body{margin:0;background:var(--bg);font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:var(--navy)}header{background:var(--navy);color:white;padding:calc(28px + env(safe-area-inset-top)) 20px 28px}header .inner,main{max-width:680px;margin:auto}h1{font-size:1.7rem;letter-spacing:-.04em;margin:0 0 6px}header p{margin:0;color:#c7d6e6;font-size:.94rem}main{padding:22px 16px 48px}.count{font-size:.85rem;color:var(--muted);font-weight:600;margin:0 0 12px}.list{display:grid;gap:12px}.case{display:flex;gap:12px;align-items:center;background:#fff;border:1px solid var(--line);border-radius:17px;padding:18px 16px;text-decoration:none;color:inherit;box-shadow:0 3px 14px #10253c08;min-height:100px;transition:transform .15s,box-shadow .15s}.case:hover{transform:translateY(-2px);box-shadow:0 8px 20px #10253c12}.case:focus-visible{outline:3px solid #2b78c6;outline-offset:3px}.details{flex:1;min-width:0}.number{font-size:.83rem;font-weight:800;color:var(--blue);letter-spacing:.02em;margin-bottom:7px}.title{font-size:1.04rem;font-weight:750;line-height:1.35;overflow-wrap:anywhere}.desc{color:var(--muted);font-size:.88rem;line-height:1.45;margin-top:5px;overflow-wrap:anywhere}.arrow{font-size:1.5rem;color:#71859a;flex:none}.empty{background:white;border-radius:14px;padding:24px;color:var(--muted)}footer{text-align:center;color:var(--muted);font-size:.78rem;margin-top:24px}@media(prefers-reduced-motion:reduce){.case{transition:none}}
+</style>
+</head>
+<body>
+<header><div class="inner"><h1>Mine saker</h1><p>Trykk på en sak for å åpne den i offentlig saksinnsyn.</p></div></header>
+<main><p id="count" class="count"></p><div id="list" class="list"></div><footer>Lenkene åpnes i en ny fane. Ingen API eller innlogging kreves.</footer></main>
+<script>
+// ============================================================
+// LEGG INN SAKENE DINE HER.
+// Én linje per sak: leggTilSak("saksnummer", "hjelpetekst", "lenke", "valgfri beskrivelse");
+// Kopier en linje for å legge til flere saker.
+// ============================================================
+function hentSaker() {
+  const saker = [];
+  function leggTilSak(nummer, hjelpetekst, lenke, beskrivelse = "") {
+    saker.push({ nummer, hjelpetekst, lenke, beskrivelse });
+  }
+
+  leggTilSak(
+    "22/868",
+    "Kommunegrensejustering",
+    "https://einnsyn.no/saksmappe?id=http%3A%2F%2Fdata.einnsyn.no%2Fnoark4%2FSaksmappe--972417858--868--2022",
+    "Forsand – fra Sandnes til Strand kommune"
+  );
+
+  // Eksempel på ny sak (fjern // og fyll inn dine egne opplysninger):
+  // leggTilSak("23/1234", "Min neste sak", "https://eksempel.no/sak", "Kort beskrivelse");
+
+  return saker;
 }
-saker.forEach(s=>{const card=el('article','case');const b=el('button','head');b.type='button';const left=el('div');left.append(el('div','num',s.nummer),el('div','name',s.tekst));if(s.beskrivelse)left.append(el('div','desc',s.beskrivelse));b.append(left,el('span','muted','⌄'));const detail=el('div','details');card.append(b,detail);let loaded=false;b.addEventListener('click',()=>{const open=card.classList.toggle('open');b.setAttribute('aria-expanded',String(open));if(open&&!loaded){loaded=true;load(s,detail)}});root.append(card)});
-</script></body></html>
+
+// Automatisk mobilvisning – denne delen trenger du ikke redigere.
+function visSaker() {
+  const saker = hentSaker();
+  const liste = document.getElementById("list");
+  document.getElementById("count").textContent = `${saker.length} ${saker.length === 1 ? "sak" : "saker"}`;
+  for (const sak of saker) {
+    const a = document.createElement("a");
+    a.className = "case";
+    a.href = sak.lenke;
+    a.target = "_blank";
+    a.rel = "noopener noreferrer";
+    const info = document.createElement("div");
+    info.className = "details";
+    const number = document.createElement("div");
+    number.className = "number";
+    number.textContent = sak.nummer;
+    const title = document.createElement("div");
+    title.className = "title";
+    title.textContent = sak.hjelpetekst;
+    info.append(number, title);
+    if (sak.beskrivelse) {
+      const desc = document.createElement("div");
+      desc.className = "desc";
+      desc.textContent = sak.beskrivelse;
+      info.append(desc);
+    }
+    const arrow = document.createElement("span");
+    arrow.className = "arrow";
+    arrow.textContent = "›";
+    arrow.setAttribute("aria-hidden", "true");
+    a.append(info, arrow);
+    liste.append(a);
+  }
+  if (!saker.length) {
+    const empty = document.createElement("div");
+    empty.className = "empty";
+    empty.textContent = "Ingen saker er lagt inn ennå.";
+    liste.append(empty);
+  }
+}
+visSaker();
+</script>
+</body>
+</html>
