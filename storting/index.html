@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="no">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mine saker</title>
+<style>
+:root{color-scheme:light;--bg:#f3f5f8;--ink:#182437;--muted:#627187;--line:#e3e8ef;--accent:#1459a4}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);font:16px/1.5 system-ui,-apple-system,Segoe UI,sans-serif;color:var(--ink)}main{max-width:650px;margin:auto;padding:28px 16px 60px}header{margin-bottom:24px}h1{font-size:1.8rem;letter-spacing:-.04em;margin:0 0 5px}p{margin:0;color:var(--muted)}.count{font-size:.9rem;margin-top:6px}.list{display:grid;gap:12px}.case{background:#fff;border:1px solid var(--line);border-radius:16px;overflow:hidden;box-shadow:0 3px 12px #172f4c08}.case summary{list-style:none;cursor:pointer;display:flex;align-items:center;gap:12px;padding:17px 16px;min-height:80px}.case summary::-webkit-details-marker{display:none}.case summary:focus-visible{outline:3px solid #74aaf0;outline-offset:-3px}.info{flex:1;min-width:0}.number{font-size:.83rem;font-weight:750;color:var(--accent);letter-spacing:.02em}.title{font-weight:700;font-size:1.06rem;margin-top:2px;overflow-wrap:anywhere}.chevron{color:var(--muted);font-size:1.4rem;transition:transform .2s}.case[open] .chevron{transform:rotate(90deg)}.details{border-top:1px solid var(--line);padding:16px;color:var(--muted);font-size:.95rem}.details p{margin-bottom:12px}.details a{color:var(--accent);font-weight:650;overflow-wrap:anywhere}.empty{padding:20px;text-align:center;background:#fff;border-radius:14px}@media(prefers-reduced-motion:reduce){.chevron{transition:none}}
+</style>
+</head>
+<body>
+<main>
+<header><h1>Mine saker</h1><p>Oversikt over saker jeg følger</p><p class="count" id="count"></p></header>
+<section class="list" id="list" aria-label="Saksliste"></section>
+</main>
+<script>
+/*
+  REDIGER BARE LINJENE UNDER.
+  Én sak per linje. Bruk formatet:
+  { nummer: "SAKSNUMMER", tekst: "HJELPETEKST", beskrivelse: "VALGFRI DETALJ", lenke: "VALGFRI NETTADRESSE" },
+
+  Legg til flere linjer ved å kopiere eksempelet.
+  Slett feltet «lenke» dersom du ikke har en nettside for saken.
+  Dette er en ren presentasjon av sakene du selv legger inn, ikke automatisk API-status.
+*/
+const saker = [
+  { nummer: "22/868", tekst: "Kommunegrensejustering", beskrivelse: "Forsand – grenseflytting fra Sandnes til Strand kommune." },
+  // { nummer: "23/1234", tekst: "Eksempel på ny sak", beskrivelse: "Kort forklaring", lenke: "https://www.stortinget.no/" },
+];
+
+// Du trenger ikke endre noe nedenfor.
+const list = document.getElementById('list');
+document.getElementById('count').textContent = `${saker.length} ${saker.length === 1 ? 'sak' : 'saker'}`;
+for (const sak of saker) {
+  const details = document.createElement('details'); details.className = 'case';
+  const summary = document.createElement('summary');
+  const info = document.createElement('div'); info.className = 'info';
+  const number = document.createElement('div'); number.className = 'number'; number.textContent = sak.nummer || 'Uten nummer';
+  const title = document.createElement('div'); title.className = 'title'; title.textContent = sak.tekst || 'Uten beskrivelse';
+  info.append(number, title);
+  const arrow = document.createElement('span'); arrow.className = 'chevron'; arrow.textContent = '›'; arrow.setAttribute('aria-hidden','true');
+  summary.append(info, arrow); details.append(summary);
+  const body = document.createElement('div'); body.className = 'details';
+  if(sak.beskrivelse){const p=document.createElement('p');p.textContent=sak.beskrivelse;body.append(p)}
+  if(sak.lenke){try{const url=new URL(sak.lenke);if(['https:','http:'].includes(url.protocol)){const a=document.createElement('a');a.href=url.href;a.target='_blank';a.rel='noopener noreferrer';a.textContent='Åpne dokument eller sak ↗';body.append(a)}}catch(e){}}
+  if(!body.childNodes.length){const p=document.createElement('p');p.textContent='Ingen flere opplysninger registrert.';body.append(p)}
+  details.append(body);list.append(details);
+}
+if(!saker.length){const p=document.createElement('p');p.className='empty';p.textContent='Ingen saker er lagt inn ennå.';list.append(p)}
+</script>
+</body>
+</html>
