@@ -1,792 +1,193 @@
-
-<!DOCTYPE html>
+<!doctype html>
 <html lang="nb">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="theme-color" content="#17645a">
-<title>Ferja | Oanes og Lauvvik</title>
-
-<style>
-:root {
-  color-scheme: light;
-  --ink: #172e2b;
-  --muted: #566d68;
-  --green: #17645a;
-  --line: #d7e3df;
-}
-
-* { box-sizing: border-box; }
-
-body {
-  margin: 0;
-  background: #edf3f0;
-  color: var(--ink);
-  font-family: -apple-system, BlinkMacSystemFont,
-    "Segoe UI", sans-serif;
-}
-
-main {
-  max-width: 760px;
-  margin: auto;
-  padding: 12px 14px 18px;
-}
-
-header {
-  padding-bottom: 10px;
-  border-bottom: 1px solid var(--line);
-}
-
-.eyebrow {
-  margin: 0 0 4px;
-  color: var(--green);
-  font-size: 11px;
-  font-weight: 700;
-  text-transform: uppercase;
-}
-
-h1 {
-  margin: 0;
-  font-size: 25px;
-  line-height: 1.2;
-  font-weight: 750;
-}
-
-.clock-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: baseline;
-  flex-wrap: wrap;
-  gap: 5px;
-  margin-top: 8px;
-  color: var(--muted);
-  font-size: 12px;
-}
-
-#clock {
-  font-size: 17px;
-  font-weight: 650;
-  color: var(--ink);
-  font-variant-numeric: tabular-nums;
-}
-
-.departures {
-  display: grid;
-  gap: 10px;
-  margin: 12px 0;
-}
-
-.departure {
-  overflow: hidden;
-  background: white;
-  border: 1px solid var(--line);
-  border-radius: 12px;
-}
-
-.port {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 10px;
-  padding: 10px 14px;
-  border-bottom: 1px solid var(--line);
-}
-
-h2 {
-  margin: 0;
-  font-size: 19px;
-}
-
-.destination {
-  margin: 2px 0 0;
-  font-size: 12px;
-  color: var(--muted);
-}
-
-.port-mark {
-  width: 29px;
-  height: 29px;
-  color: var(--green);
-  flex-shrink: 0;
-}
-
-.next {
-  padding: 10px 14px;
-  background: #f5faf7;
-}
-
-.label {
-  font-size: 11px;
-  color: var(--muted);
-}
-
-.next-line {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 10px;
-  margin-top: 2px;
-}
-
-.next-time {
-  font-size: 39px;
-  line-height: 1.1;
-  font-weight: 750;
-  font-variant-numeric: tabular-nums;
-}
-
-.countdown {
-  text-align: right;
-  font-size: 13px;
-  font-weight: 700;
-  color: var(--green);
-  max-width: 140px;
-}
-
-.day-label {
-  margin-top: 3px;
-  color: var(--muted);
-  font-size: 11px;
-}
-
-/* Avgangen etter den neste */
-
-.following {
-  margin: 0;
-  padding: 0 14px;
-  list-style: none;
-}
-
-.following li {
-  display: none;
-  justify-content: space-between;
-  gap: 10px;
-  padding: 9px 0;
-  border-top: 1px solid var(--line);
-  font-size: 12px;
-}
-
-.following li:first-child {
-  display: flex;
-}
-
-.following time {
-  font-weight: 700;
-  color: var(--ink);
-  font-variant-numeric: tabular-nums;
-}
-
-.following span {
-  color: var(--muted);
-}
-
-.daily {
-  display: none;
-  justify-content: space-between;
-  flex-wrap: wrap;
-  gap: 6px;
-  padding: 9px 14px;
-  font-size: 11px;
-  color: var(--muted);
-}
-
-.daily strong {
-  color: var(--ink);
-}
-
-.notice {
-  padding: 8px 0 8px 11px;
-  border-left: 3px solid #bd8729;
-  font-size: 11px;
-  line-height: 1.5;
-  margin-bottom: 10px;
-}
-
-.notice strong {
-  display: block;
-}
-
-details {
-  border-top: 1px solid var(--line);
-  border-bottom: 1px solid var(--line);
-}
-
-summary {
-  padding: 11px 0;
-  font-size: 13px;
-  font-weight: 650;
-  cursor: pointer;
-}
-
-summary:focus-visible {
-  outline: 2px solid var(--green);
-  outline-offset: 3px;
-}
-
-.schedule {
-  padding-bottom: 15px;
-}
-
-.schedule h3 {
-  margin: 16px 0 7px;
-  font-size: 16px;
-}
-
-.schedule p {
-  font-size: 12px;
-  line-height: 1.6;
-  margin: 6px 0;
-}
-
-.times {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 7px 12px;
-  margin: 8px 0 14px;
-  font-size: 13px;
-  font-variant-numeric: tabular-nums;
-}
-
-footer {
-  padding-top: 10px;
-  font-size: 10px;
-  line-height: 1.5;
-  color: var(--muted);
-}
-
-footer p {
-  margin: 0 0 4px;
-}
-
-noscript {
-  display: block;
-  padding: 12px;
-  background: #fff3d8;
-}
-
-/* Ekstra kompakt mobilvisning */
-
-@media (max-width: 619px) and (max-height: 750px) {
-
-  main {
-    padding-top: 8px;
-    padding-bottom: 8px;
-  }
-
-  .departures {
-    gap: 8px;
-    margin: 9px 0;
-  }
-
-  .port {
-    padding: 8px 12px;
-  }
-
-  .next {
-    padding: 8px 12px;
-  }
-
-  .next-time {
-    font-size: 35px;
-  }
-
-  .following {
-    padding: 0 12px;
-  }
-
-  .following li:first-child {
-    padding: 7px 0;
-    font-size: 12px;
-  }
-
-  .notice {
-    margin-bottom: 7px;
-  }
-
-  footer {
-    padding-top: 7px;
-  }
-}
-
-/* Større skjermer */
-
-@media (min-width: 620px) {
-  main {
-    padding: 30px 20px;
-  }
-
-  .departures {
-    grid-template-columns: 1fr 1fr;
-  }
-
-  .following li {
-    display: flex;
-  }
-
-  .daily {
-    display: flex;
-  }
-}
-</style>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#17645a">
+  <title>Ferjeruter | Høgsfjorden og Lysefjorden</title>
+  <style>
+    :root{color-scheme:light;--ink:#172e2b;--muted:#5b706c;--green:#17645a;--line:#d7e3df}
+    *{box-sizing:border-box}body{margin:0;background:#edf3f0;color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+    main{width:min(100% - 24px,520px);margin:auto;padding:12px 0 18px}
+    header{background:#17645a;color:white;border-radius:14px;padding:15px 17px}
+    .eyebrow{font-size:10px;font-weight:750;letter-spacing:.08em;text-transform:uppercase;color:#c9e7dc;margin:0 0 4px}
+    h1{font-size:24px;line-height:1.2;margin:0;font-weight:750}.clock-row{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-top:8px;font-size:12px;color:#dcece6}
+    #clock{font-size:16px;font-weight:700;font-variant-numeric:tabular-nums;color:white}
+    .route-switch{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);align-items:center;gap:8px;margin:10px 0 9px;width:100%}
+    .route-switch button{min-width:0;width:100%;white-space:nowrap;text-align:center;border:0;border-bottom:1px solid transparent;background:none;border-radius:0;padding:5px 1px;font:inherit;font-size:11px;font-weight:500;color:#71837e;cursor:pointer}
+    .route-switch button[aria-pressed="true"]{border-bottom-color:#17645a;color:#17645a;font-weight:700}
+    .departures{display:grid;gap:9px}.departure{background:white;border:1px solid var(--line);border-radius:12px;overflow:hidden}
+    .port{display:flex;align-items:center;justify-content:space-between;padding:9px 13px;border-bottom:1px solid var(--line)}
+    h2{font-size:18px;margin:0}.destination{font-size:11px;color:var(--muted);margin:2px 0 0}
+    .boat{font-size:22px;color:var(--green)}.next{background:#f5faf7;padding:9px 13px 8px}.label{font-size:11px;color:var(--muted)}
+    .next-line{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:1px}
+    .next-time{font-size:37px;font-weight:750;line-height:1.1;font-variant-numeric:tabular-nums;letter-spacing:-1px}
+    .countdown{font-size:12px;font-weight:700;color:var(--green);text-align:right}.day-label{font-size:11px;color:var(--muted);margin-top:2px}
+    .following{display:flex;justify-content:space-between;gap:8px;padding:8px 13px;font-size:12px;color:var(--muted)}.following strong{color:var(--ink);font-variant-numeric:tabular-nums}
+    .notice{border-left:3px solid #bd8729;padding:7px 10px;font-size:11px;line-height:1.45;margin:10px 0;color:#425853}.notice strong{display:block}
+    details{border-top:1px solid var(--line);border-bottom:1px solid var(--line)}summary{font-size:13px;font-weight:700;padding:11px 0;cursor:pointer}
+    summary:focus-visible,button:focus-visible{outline:3px solid #316d64;outline-offset:2px}.schedule{padding:0 0 14px}.schedule h3{font-size:15px;margin:12px 0 6px}
+    .schedule p{font-size:12px;line-height:1.55;margin:6px 0}.times{display:flex;flex-wrap:wrap;gap:7px 12px;font-size:12px;margin:7px 0 11px;font-variant-numeric:tabular-nums}
+    .stop-table{width:100%;border-collapse:collapse;font-size:11px;margin:8px 0}.stop-table th,.stop-table td{text-align:left;padding:7px 5px;border-bottom:1px solid var(--line)}.stop-table th{color:#49625c}.stop-table td:not(:first-child){font-variant-numeric:tabular-nums}
+    footer{font-size:10px;line-height:1.5;color:var(--muted);padding-top:8px}footer p{margin:0 0 3px}
+    @media(max-height:700px){main{padding-top:6px}.route-switch{margin:7px 0}.route-switch button{padding:3px 1px}.port{padding:7px 12px}.next{padding:7px 12px}.next-time{font-size:33px}.following{padding:6px 12px}.notice{margin:7px 0;padding:5px 9px}summary{padding:8px 0}footer{padding-top:5px}}
+    @media(min-width:700px){main{padding-top:32px}}
+  </style>
 </head>
-
 <body>
-
 <main>
-
-<header>
-  <p class="eyebrow">Høgsfjordsambandet</p>
-  <h1>Oanes ↔ Lauvvik</h1>
-
-  <div class="clock-row">
-    <span id="today">Norsk tid</span>
-    <time id="clock">--:--:--</time>
-  </div>
-</header>
-
-<noscript>
-  Slå på JavaScript for å se neste ferje.
-</noscript>
-
-<section class="departures"
-         aria-label="Neste ferje fra hver kai">
-
-  <!-- OANES -->
-
-  <article class="departure" id="oanes">
-
-    <div class="port">
-      <div>
-        <h2>Fra Oanes</h2>
-        <p class="destination">Til Lauvvik</p>
-      </div>
-
-      <svg class="port-mark" viewBox="0 0 40 40"
-           fill="none" stroke="currentColor"
-           stroke-width="1.7" aria-hidden="true">
-        <path d="M8 21h24l-4 9H12z
-                 M13 21V11h14v10
-                 M17 11V7h6v4
-                 M17 16h6
-                 M5 34c3-3 5 3 8 0
-                 s5 3 8 0 5 3 8 0 4 1 6 0"/>
-      </svg>
-    </div>
-
-    <div class="next">
-      <div class="label">Neste avgang</div>
-
-      <div class="next-line">
-        <time class="next-time">--:--</time>
-        <span class="countdown"></span>
-      </div>
-
-      <div class="day-label"></div>
-    </div>
-
-    <ol class="following"></ol>
-
-    <div class="daily">
-      <span>Første i dag
-        <strong class="first">--:--</strong>
-      </span>
-      <span>Siste i dag
-        <strong class="last">--:--</strong>
-      </span>
-    </div>
-
-  </article>
-
-  <!-- LAUVVIK -->
-
-  <article class="departure" id="lauvvik">
-
-    <div class="port">
-      <div>
-        <h2>Fra Lauvvik</h2>
-        <p class="destination">Til Oanes</p>
-      </div>
-
-      <svg class="port-mark" viewBox="0 0 40 40"
-           fill="none" stroke="currentColor"
-           stroke-width="1.7" aria-hidden="true">
-        <path d="M8 21h24l-4 9H12z
-                 M13 21V11h14v10
-                 M17 11V7h6v4
-                 M17 16h6
-                 M5 34c3-3 5 3 8 0
-                 s5 3 8 0 5 3 8 0 4 1 6 0"/>
-      </svg>
-    </div>
-
-    <div class="next">
-      <div class="label">Neste avgang</div>
-
-      <div class="next-line">
-        <time class="next-time">--:--</time>
-        <span class="countdown"></span>
-      </div>
-
-      <div class="day-label"></div>
-    </div>
-
-    <ol class="following"></ol>
-
-    <div class="daily">
-      <span>Første i dag
-        <strong class="first">--:--</strong>
-      </span>
-      <span>Siste i dag
-        <strong class="last">--:--</strong>
-      </span>
-    </div>
-
-  </article>
-
-</section>
-
-<aside class="notice">
-  <strong id="service-status">
-    Julen 2026 · Foreløpig plan
-  </strong>
-  Sambandet er stengt fra og med
-  24. desember 2026 til og med
-  1. januar 2027.
-</aside>
-
-<details>
-  <summary>Se hele ruteplanen</summary>
-  <div class="schedule" id="full-schedule"></div>
-</details>
-
-<footer>
-  <p>
-    Planlagte avganger, ikke sanntidsdata.
-    Endringer kan forekomme.
-  </p>
-  <p>Alle klokkeslett er norsk tid.</p>
-</footer>
-
+  <header>
+    <p class="eyebrow">Ferjeoversikt</p>
+    <h1 id="route-title">Oanes ↔ Lauvvik</h1>
+    <div class="clock-row"><span id="today">Norsk tid</span><time id="clock">--:--:--</time></div>
+  </header>
+  <nav class="route-switch" aria-label="Velg samband">
+    <button id="choose-oanes" type="button" aria-pressed="true">Oanes–Lauvvik</button>
+    <button id="choose-lyse" type="button" aria-pressed="false">Lysefjordferja</button>
+  </nav>
+  <section class="departures" id="departures" aria-label="Neste ferjeavganger">
+    <article class="departure">
+      <div class="port"><div><h2>Fra Oanes</h2><p class="destination">Til Lauvvik</p></div><span class="boat" aria-hidden="true">⛴</span></div>
+      <div class="next"><div class="label">Neste avgang</div><div class="next-line"><time class="next-time">--:--</time><span class="countdown">Beregnes …</span></div><div class="day-label">Planlagte rutetider</div></div>
+      <div class="following"><span>Deretter</span><strong>--:--</strong></div>
+    </article>
+    <article class="departure">
+      <div class="port"><div><h2>Fra Lauvvik</h2><p class="destination">Til Oanes</p></div><span class="boat" aria-hidden="true">⛴</span></div>
+      <div class="next"><div class="label">Neste avgang</div><div class="next-line"><time class="next-time">--:--</time><span class="countdown">Beregnes …</span></div><div class="day-label">Planlagte rutetider</div></div>
+      <div class="following"><span>Deretter</span><strong>--:--</strong></div>
+    </article>
+  </section>
+  <aside class="notice" id="notice"><strong>Julen 2026 · Foreløpig plan</strong>Sambandet er stengt fra 24. desember 2026 til og med 1. januar 2027.</aside>
+  <details id="details"><summary>Se hele ruteplanen</summary><div class="schedule" id="schedule"></div></details>
+  <footer><p>Planlagte tider fra oppgitte ruteplaner – ikke sanntidsdata. Endringer kan forekomme.</p><p>Alle klokkeslett er norsk tid (Europe/Oslo).</p></footer>
 </main>
-
 <script>
-
-/* RUTETIDER */
-
-const routeSchedules = [
-  {
-    id: 'oanes',
-    title: 'Fra Oanes',
-    groups: [
-      {
-        title: 'Mandag til fredag, morgen',
-        weekdays: [1, 2, 3, 4, 5],
-        times: [
-          '06:00', '06:30', '07:00',
-          '07:30', '08:00', '08:30'
-        ]
-      },
-      {
-        title: 'Alle dager',
-        weekdays: [0, 1, 2, 3, 4, 5, 6],
-        times: [
-          '09:00', '10:00', '11:00',
-          '12:00', '13:00', '14:00',
-          '14:30', '15:00', '15:30',
-          '16:00', '16:30', '17:00',
-          '17:30', '18:00'
-        ]
-      }
-    ]
-  },
-  {
-    id: 'lauvvik',
-    title: 'Fra Lauvvik',
-    groups: [
-      {
-        title: 'Mandag til fredag, morgen',
-        weekdays: [1, 2, 3, 4, 5],
-        times: [
-          '06:15', '06:45', '07:15',
-          '07:45', '08:15', '08:45'
-        ]
-      },
-      {
-        title: 'Alle dager',
-        weekdays: [0, 1, 2, 3, 4, 5, 6],
-        times: [
-          '09:15', '10:15', '11:15',
-          '12:15', '13:15', '14:15',
-          '14:45', '15:15', '15:45',
-          '16:15', '16:45', '17:15',
-          '17:45', '18:15'
-        ]
-      }
-    ]
-  }
-];
-
-const zone = 'Europe/Oslo';
-const dayLength = 86400000;
-
-const localParts = new Intl.DateTimeFormat('en-GB', {
-  timeZone: zone,
-  year: 'numeric',
-  month: '2-digit',
-  day: '2-digit',
-  hour: '2-digit',
-  minute: '2-digit',
-  second: '2-digit',
-  hourCycle: 'h23'
-});
-
-const dateFormat = new Intl.DateTimeFormat('nb-NO', {
-  timeZone: 'UTC',
-  weekday: 'long',
-  day: 'numeric',
-  month: 'long',
-  year: 'numeric'
-});
-
-const clockFormat = new Intl.DateTimeFormat('nb-NO', {
-  timeZone: zone,
-  hour: '2-digit',
-  minute: '2-digit',
-  second: '2-digit'
-});
-
-function minuteOfDay(time) {
-  const [hour, minute] = time.split(':').map(Number);
-  return hour * 60 + minute;
-}
-
-function osloNow(now) {
-  const parts = Object.fromEntries(
-    localParts.formatToParts(now).map(
-      part => [part.type, part.value]
-    )
-  );
-
-  return {
-    day: Date.UTC(
-      Number(parts.year),
-      Number(parts.month) - 1,
-      Number(parts.day)
-    ),
-    minute:
-      Number(parts.hour) * 60 +
-      Number(parts.minute) +
-      Number(parts.second) / 60
+  const DAY=86400000, ZONE='Europe/Oslo';
+  const partsFormat=new Intl.DateTimeFormat('en-GB',{timeZone:ZONE,year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',second:'2-digit',hourCycle:'h23'});
+  const clockFormat=new Intl.DateTimeFormat('nb-NO',{timeZone:ZONE,hour:'2-digit',minute:'2-digit',second:'2-digit'});
+  const dateFormat=new Intl.DateTimeFormat('nb-NO',{timeZone:'UTC',weekday:'long',day:'numeric',month:'long',year:'numeric'});
+  const clockSeconds=new Intl.DateTimeFormat('nb-NO',{timeZone:ZONE,hour:'2-digit',minute:'2-digit',second:'2-digit'});
+  const toMinute=t=>{const [h,m]=t.split(':').map(Number);return h*60+m};
+  const toTime=m=>`${String(Math.floor(m/60)).padStart(2,'0')}:${String(m%60).padStart(2,'0')}`;
+  const days=[0,1,2,3,4,5,6], weekdays=[1,2,3,4,5], weekend=[0,6];
+  const routes={
+    oanes:{title:'Oanes ↔ Lauvvik',closedFrom:Date.UTC(2026,11,24),closedTo:Date.UTC(2027,0,1),directions:[
+      {title:'Fra Oanes',destination:'Til Lauvvik',groups:[
+        {label:'Mandag–fredag, morgen',days:weekdays,times:['06:00','06:30','07:00','07:30','08:00','08:30']},
+        {label:'Alle dager',days,times:['09:00','10:00','11:00','12:00','13:00','14:00','14:30','15:00','15:30','16:00','16:30','17:00','17:30','18:00']}]},
+      {title:'Fra Lauvvik',destination:'Til Oanes',groups:[
+        {label:'Mandag–fredag, morgen',days:weekdays,times:['06:15','06:45','07:15','07:45','08:15','08:45']},
+        {label:'Alle dager',days,times:['09:15','10:15','11:15','12:15','13:15','14:15','14:45','15:15','15:45','16:15','16:45','17:15','17:45','18:15']}]}]},
+    lyse:{title:'Lauvvik ↔ Lysebotn',validFrom:Date.UTC(2026,9,1),validTo:Date.UTC(2027,2,31),directions:[
+      {title:'Fra Lauvvik',destination:'Mot Lysebotn · rute 560',groups:[
+        {label:'Mandag–fredag',days:weekdays,times:['06:00','13:00']},
+        {label:'Lørdag og søndag',days:weekend,times:['08:00']}]},
+      {title:'Fra Lysebotn',destination:'Mot Lauvvik · rute 560',groups:[
+        {label:'Mandag–fredag',days:weekdays,times:['08:00','15:00']},
+        {label:'Lørdag og søndag',days:weekend,times:['13:00']}]}]}
   };
-}
-
-function isClosed(day) {
-  return day >= Date.UTC(2026, 11, 24) &&
-         day <= Date.UTC(2027, 0, 1);
-}
-
-function departuresFor(day, route) {
-  if (isClosed(day)) return [];
-
-  const weekday = new Date(day).getUTCDay();
-
-  return route.groups
-    .filter(group => group.weekdays.includes(weekday))
-    .flatMap(group => group.times.map(minuteOfDay))
-    .sort((a, b) => a - b);
-}
-
-function upcoming(now, route, count = 3) {
-  const local = osloNow(now);
-  const result = [];
-
-  for (
-    let day = local.day;
-    day <= local.day + 370 * dayLength &&
-    result.length < count;
-    day += dayLength
-  ) {
-    for (const minute of departuresFor(day, route)) {
-      if (
-        day === local.day &&
-        minute < local.minute
-      ) continue;
-
-      result.push({ day, minute });
-
-      if (result.length === count) break;
-    }
+  // Kolumbus 560: stoppetider slik de står i vedlagt ruteplan, 1.10.2026–31.3.2027.
+  const lyseStops=[
+    {name:'Lauvvik',out:['06:00','13:00','08:00'],back:['09:30','16:30','14:30']},
+    {name:'Forsand',out:['06:05','13:05','08:05'],back:['09:25','16:25','14:25']},
+    {name:'Revså',out:['06:20','13:20','08:20'],back:['09:10','16:10','14:10']},
+    {name:'Bratteli',out:['06:35','13:35','08:35'],back:['08:55','15:55','13:55']},
+    {name:'Bakken',out:['06:40','13:40','08:40'],back:['08:50','15:50','13:50']},
+    {name:'Songesand',out:['06:45','13:45','08:45'],back:['08:45','15:45','13:45']},
+    {name:'Kalleli',out:['06:55','13:55','08:55'],back:['08:35','15:35','13:35']},
+    {name:'Flørli',out:['07:00','14:00','09:00'],back:['08:30','15:30','13:30']},
+    {name:'Håheller',out:['07:15','14:15','09:15'],back:['08:15','15:15','13:15']},
+    {name:'Lysebotn',out:['07:30','14:30','09:30'],back:['08:00','15:00','13:00']}
+  ];
+  let selected='oanes';
+  const localNow=now=>{const p=Object.fromEntries(partsFormat.formatToParts(now).map(x=>[x.type,x.value]));return {day:Date.UTC(+p.year,+p.month-1,+p.day),minute:+p.hour*60+(+p.minute)+(+p.second)/60}};
+  const dayText=(day,today)=>day===today?'i dag':day===today+DAY?'i morgen':dateFormat.format(new Date(day));
+  function departuresOn(day,route,direction){
+    if(route.closedFrom!==undefined&&day>=route.closedFrom&&day<=route.closedTo)return [];
+    if(route.validFrom!==undefined&&(day<route.validFrom||day>route.validTo))return [];
+    const weekday=new Date(day).getUTCDay();
+    return direction.groups.filter(g=>g.days.includes(weekday)).flatMap(g=>g.times.map(toMinute)).sort((a,b)=>a-b);
   }
-
-  return result;
-}
-
-function timeText(minute) {
-  return (
-    String(Math.floor(minute / 60)).padStart(2, '0') +
-    ':' +
-    String(minute % 60).padStart(2, '0')
-  );
-}
-
-function dayText(day, today) {
-  if (day === today) return 'I dag';
-
-  if (day === today + dayLength) {
-    return 'I morgen';
-  }
-
-  return dateFormat.format(new Date(day));
-}
-
-function renderSchedule() {
-  const schedule =
-    document.getElementById('full-schedule');
-
-  schedule.replaceChildren();
-
-  for (const route of routeSchedules) {
-    const heading = document.createElement('h3');
-    heading.textContent = route.title;
-    schedule.append(heading);
-
-    for (const group of route.groups) {
-      const label = document.createElement('p');
-      const strong = document.createElement('strong');
-      strong.textContent = group.title;
-      label.append(strong);
-
-      const times = document.createElement('div');
-      times.className = 'times';
-
-      for (const time of group.times) {
-        const item = document.createElement('span');
-        item.textContent = time;
-        times.append(item);
+  function upcoming(now,route,direction,count=2){
+    const local=localNow(now),found=[];
+    for(let day=local.day;day<=local.day+370*DAY&&found.length<count;day+=DAY){
+      if(route.validTo!==undefined&&day>route.validTo)break;
+      for(const minute of departuresOn(day,route,direction)){
+        if(day===local.day&&minute<local.minute)continue;
+        found.push({day,minute});if(found.length>=count)break;
       }
-
-      schedule.append(label, times);
     }
+    return found;
   }
-
-  const note = document.createElement('p');
-  note.textContent =
-    'Ved gjenstående biler seiles ekstraturer. ' +
-    'Disse har ikke faste avgangstider.';
-
-  schedule.append(note);
-}
-
-function update(now = new Date()) {
-  const local = osloNow(now);
-
-  document.getElementById('today').textContent =
-    dateFormat.format(new Date(local.day));
-
-  const clock = document.getElementById('clock');
-  clock.textContent = clockFormat.format(now);
-  clock.dateTime = now.toISOString();
-
-  document.getElementById('service-status').textContent =
-    isClosed(local.day)
-      ? 'Julestengt i dag · Foreløpig plan'
-      : 'Julen 2026 · Foreløpig plan';
-
-  for (const route of routeSchedules) {
-    const card = document.getElementById(route.id);
-    const today = departuresFor(local.day, route);
-    const next = upcoming(now, route);
-    const first = next[0];
-
-    card.querySelector('.first').textContent =
-      today.length
-        ? timeText(today[0])
-        : 'Stengt';
-
-    card.querySelector('.last').textContent =
-      today.length
-        ? timeText(today[today.length - 1])
-        : 'Stengt';
-
-    card.querySelector('.next-time').textContent =
-      first ? timeText(first.minute) : '--:--';
-
-    const countdown = card.querySelector('.countdown');
-    const dayLabel = card.querySelector('.day-label');
-
-    if (first) {
-      const minutes = Math.max(
-        0,
-        Math.ceil(first.minute - local.minute)
-      );
-
-      if (first.day !== local.day) {
-        countdown.textContent =
-          dayText(first.day, local.day);
-      } else if (minutes === 0) {
-        countdown.textContent = 'Går nå';
-      } else if (minutes < 60) {
-        countdown.textContent = `Om ${minutes} min`;
-      } else {
-        const hours = Math.floor(minutes / 60);
-        const rest = minutes % 60;
-
-        countdown.textContent =
-          `Om ${hours} t` +
-          (rest ? ` ${rest} min` : '');
+  function countdown(dep,local){
+    if(!dep)return 'Ingen avganger';
+    if(dep.day!==local.day)return dayText(dep.day,local.day);
+    const m=Math.max(0,Math.ceil(dep.minute-local.minute));
+    return m===0?'Går nå':m<60?`Om ${m} min`:`Om ${Math.floor(m/60)} t${m%60?' '+m%60+' min':''}`;
+  }
+  function renderSchedule(){
+    const el=document.querySelector('#schedule');el.replaceChildren();
+    const route=routes[selected];
+    if(selected==='oanes'){
+      for(const dir of route.directions){
+        const h=document.createElement('h3');h.textContent=dir.title;el.append(h);
+        for(const group of dir.groups){const p=document.createElement('p');p.textContent=group.label;const line=document.createElement('div');line.className='times';group.times.forEach(t=>{const s=document.createElement('span');s.textContent=t;line.append(s)});el.append(p,line)}
       }
-
-      dayLabel.textContent =
-        first.day === local.day
-          ? 'I dag'
-          : isClosed(local.day)
-            ? 'Første avgang etter juleoppholdet'
-            : 'Ingen flere avganger i dag';
-    } else {
-      countdown.textContent = '';
-      dayLabel.textContent = '';
-    }
-
-    const list = card.querySelector('.following');
-
-    const rows = next.slice(1)
-      .map(dep => `${dep.day}-${dep.minute}`)
-      .join(',');
-
-    if (list.dataset.rows !== rows) {
-      list.replaceChildren();
-
-      next.slice(1).forEach((departure, index) => {
-        const row = document.createElement('li');
-        const label = document.createElement('span');
-        const time = document.createElement('time');
-
-        label.textContent =
-          (index === 0 ? 'Deretter' : 'Neste etter det') +
-          ' · ' +
-          dayText(departure.day, local.day).toLowerCase();
-
-        time.textContent = timeText(departure.minute);
-
-        row.append(label, time);
-        list.append(row);
-      });
-
-      list.dataset.rows = rows;
+      const p=document.createElement('p');p.textContent='Ved gjenstående biler kan det seiles ekstraturer uten faste avgangstider.';el.append(p);
+    }else{
+      for(const [title,key] of [['Lauvvik → Lysebotn','out'],['Lysebotn → Lauvvik','back']]){
+        const h=document.createElement('h3');h.textContent=title;el.append(h);
+        const table=document.createElement('table');table.className='stop-table';
+        const head=document.createElement('thead');const hr=document.createElement('tr');['Stopp','Man–fre 1','Man–fre 2','Lør/søn'].forEach(label=>{const th=document.createElement('th');th.textContent=label;hr.append(th)});head.append(hr);table.append(head);
+        const body=document.createElement('tbody');const stops=key==='out'?lyseStops:[...lyseStops].reverse();
+        stops.forEach(stop=>{const tr=document.createElement('tr');[stop.name,...stop[key]].forEach(v=>{const td=document.createElement('td');td.textContent=v;tr.append(td)});body.append(tr)});table.append(body);el.append(table);
+      }
+      const p=document.createElement('p');p.textContent='B betyr bestilling: Kjøretøy og passasjerer må bestille plass på billetter.kolumbus.no senest to timer før avgang fra rutens startpunkt. Kjøretøy møter minst 20 minutter før, passasjerer minst 10 minutter før.';el.append(p);
     }
   }
-}
-
-renderSchedule();
-update();
-
-setInterval(() => update(), 1000);
-
-document.addEventListener('visibilitychange', () => {
-  if (!document.hidden) update();
-});
-
+  function renderCards(){
+    const route=routes[selected],local=localNow(new Date()),root=document.querySelector('#departures');root.replaceChildren();
+    route.directions.forEach(direction=>{
+      const next=upcoming(new Date(),route,direction);
+      const article=document.createElement('article');article.className='departure';
+      const port=document.createElement('div');port.className='port';
+      const names=document.createElement('div');const h=document.createElement('h2');h.textContent=direction.title;const dest=document.createElement('p');dest.className='destination';dest.textContent=direction.destination;names.append(h,dest);
+      const boat=document.createElement('span');boat.className='boat';boat.textContent='⛴';boat.setAttribute('aria-hidden','true');port.append(names,boat);
+      const section=document.createElement('div');section.className='next';
+      const label=document.createElement('div');label.className='label';label.textContent='Neste avgang';
+      const row=document.createElement('div');row.className='next-line';const time=document.createElement('time');time.className='next-time';time.textContent=next[0]?toTime(next[0].minute):'--:--';const count=document.createElement('span');count.className='countdown';count.textContent=countdown(next[0],local);row.append(time,count);
+      const day=document.createElement('div');day.className='day-label';day.textContent=next[0]?dayText(next[0].day,local.day):'Ingen flere avganger i oppgitt ruteplan';section.append(label,row,day);
+      const following=document.createElement('div');following.className='following';const fl=document.createElement('span');fl.textContent=next[1]?`Deretter · ${dayText(next[1].day,local.day)}`:'Ingen senere avgang';const ft=document.createElement('strong');ft.textContent=next[1]?toTime(next[1].minute):'–';following.append(fl,ft);
+      article.append(port,section,following);root.append(article);
+    });
+    const notice=document.querySelector('#notice');notice.replaceChildren();
+    const strong=document.createElement('strong');const body=document.createElement('span');
+    if(selected==='oanes'){
+      const closed=local.day>=route.closedFrom&&local.day<=route.closedTo;
+      strong.textContent=closed?'Julestengt i dag · Foreløpig plan':'Julen 2026 · Foreløpig plan';
+      body.textContent='Sambandet er stengt fra og med 24. desember 2026 til og med 1. januar 2027.';
+    }else{
+      strong.textContent='Rute 560 · 1. oktober 2026–31. mars 2027';
+      body.textContent='Bestilling på billetter.kolumbus.no senest 2 timer før rutens start. Kjøretøy møter 20 min før; passasjerer 10 min før. B = bestilling.';
+    }
+    notice.append(strong,body);
+  }
+  function selectRoute(id){
+    selected=id;document.querySelector('#route-title').textContent=routes[id].title;
+    document.querySelector('#choose-oanes').setAttribute('aria-pressed',String(id==='oanes'));
+    document.querySelector('#choose-lyse').setAttribute('aria-pressed',String(id==='lyse'));
+    document.querySelector('#details').open=false;renderSchedule();update();
+  }
+  function update(){
+    const now=new Date(),local=localNow(now);
+    document.querySelector('#today').textContent=dateFormat.format(new Date(local.day));
+    document.querySelector('#clock').textContent=clockSeconds.format(now);
+    renderCards();
+  }
+  document.querySelector('#choose-oanes').addEventListener('click',()=>selectRoute('oanes'));
+  document.querySelector('#choose-lyse').addEventListener('click',()=>selectRoute('lyse'));
+  selectRoute('oanes');setInterval(update,1000);
+  document.addEventListener('visibilitychange',()=>{if(!document.hidden)update()});
 </script>
-
 </body>
 </html>
