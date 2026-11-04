@@ -160,21 +160,53 @@
         }
 
         @media (max-width: 420px) {
-            header { align-items: center; }
-            h1 { font-size: 25px; }
-            .live { padding: 7px 9px; font-size: 11px; }
-            .wind-panel { padding: 21px 18px; }
-            .wind-main { gap: 12px; }
-            .compass { width: 116px; flex-basis: 116px; }
-            .wind-arrow { width: 44px; height: 60px; }
+            main { padding: 10px 0 12px; }
+            header { align-items: center; padding-bottom: 9px; }
+            .eyebrow { margin-bottom: 2px; font-size: 9px; }
+            h1 { font-size: 23px; }
+            .live { gap: 5px; padding: 6px 7px; font-size: 10px; }
+            .dashboard { gap: 8px; }
+            .wind-panel { min-height: 0; padding: 12px 14px; }
+            .station-heading { gap: 4px; font-size: 11px; }
+            .wind-main { gap: 10px; margin: 8px 0 9px; }
+            .wind-kicker { font-size: 10px; }
+            .wind-speed { font-size: 38px; }
+            .wind-speed small { font-size: 14px; }
+            .wind-from { max-width: 190px; margin-top: 5px; font-size: 11px; line-height: 1.25; }
+            .compass { width: 82px; flex-basis: 82px; }
+            .compass-label { font-size: 8px; }
+            .compass-n { top: 5px; }
+            .compass-e { right: 6px; }
+            .compass-s { bottom: 5px; }
+            .compass-w { left: 6px; }
+            .wind-arrow { width: 34px; height: 46px; }
+            .readings { padding-top: 8px; }
             .readings { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-            .reading { padding-right: 5px; }
-            .reading-value { font-size: 13px; }
-            .rain-panel { padding: 20px 17px 15px; }
-            .tide { padding: 19px 16px 9px; }
-            .tide-heading { align-items: start; flex-direction: column; gap: 5px; }
-            .tide-events { grid-template-columns: 1fr; }
-            .tide-event:nth-child(odd) { border-right: 0; }
+            .reading { padding-right: 4px; }
+            .reading-label { font-size: 9px; }
+            .reading-value { margin-top: 3px; font-size: 12px; }
+            .updated { margin-top: 7px; font-size: 9px; }
+            .rain-panel { min-height: 0; padding: 11px 13px 9px; }
+            .section-kicker { margin-bottom: 3px; font-size: 9px; }
+            h2 { font-size: 16px; }
+            .rain-summary { gap: 3px; margin: 7px 0 8px; }
+            .rain-percent { font-size: 34px; }
+            .rain-percent-sign { font-size: 18px; }
+            .rain-summary-label { margin-left: 5px; font-size: 10px; }
+            .forecast { padding-top: 8px; }
+            .forecast-time, .forecast-mm { font-size: 9px; }
+            .rain-icon { height: 19px; margin: 2px auto; font-size: 14px; line-height: 19px; }
+            .forecast-probability { font-size: 10px; }
+            .weather-status { min-height: 0; margin-top: 7px; font-size: 9px; }
+            .tide { margin-top: 8px; padding: 11px 12px 5px; }
+            .tide-heading { align-items: baseline; gap: 4px; }
+            .tide-source { font-size: 9px; }
+            .tide-events { grid-template-columns: repeat(2, minmax(0, 1fr)); margin-top: 7px; }
+            .tide-event { min-height: 38px; gap: 4px; padding: 4px 5px; }
+            .tide-kind { font-size: 11px; }
+            .tide-date { margin-top: 2px; font-size: 9px; }
+            .tide-detail { gap: 4px; font-size: 10px; }
+            .tide-status { margin: 4px 0; font-size: 9px; }
         }
 
         @media (prefers-reduced-motion: reduce) {
