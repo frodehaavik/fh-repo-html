@@ -3,15 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="theme-color" content="#e8f0eb">
-    <title>Lysefjorden | Vind og tidevann</title>
+    <meta name="theme-color" content="#edf4f0">
+    <title>Lysefjorden | Vær, vind og tidevann</title>
     <style>
         :root {
             color-scheme: light;
-            --ink: #19332f;
-            --muted: #58716b;
-            --green: #17645a;
-            --line: #cfddd6;
+            --ink: #183a37;
+            --muted: #607875;
+            --green: #17685f;
+            --line: #d7e3de;
+            --paper: #fbfcfa;
+            --aqua: #dceee8;
+            --sun: #e9b64d;
         }
 
         * { box-sizing: border-box; }
@@ -20,108 +23,233 @@
             min-height: 100vh;
             margin: 0;
             color: var(--ink);
-            background: linear-gradient(160deg, #e8f0eb 0%, #f8faf8 55%, #eaf1ed 100%);
+            background: radial-gradient(ellipse at 12% 0%, #fff 0, transparent 38%), linear-gradient(145deg, #edf4f0 0%, #e5efeb 55%, #f4f3e9 100%);
             font-family: "Segoe UI", sans-serif;
             letter-spacing: 0;
         }
 
-        main { width: min(100% - 32px, 620px); margin: 0 auto; padding: 38px 0 32px; }
+        main { width: min(100% - 40px, 980px); margin: 0 auto; padding: 32px 0 48px; }
 
-        header { padding: 0 0 24px; }
+        header { display: flex; align-items: end; justify-content: space-between; gap: 16px; padding: 0 2px 22px; }
 
-        h1 { margin: 0; font-size: 24px; line-height: 1.2; font-weight: 700; text-align: center; }
+        .eyebrow { margin: 0 0 5px; color: var(--green); font-size: 11px; font-weight: 750; letter-spacing: 1.2px; text-transform: uppercase; }
 
-        .stations { margin: 22px 0; padding: 0; list-style: none; }
+        h1 { margin: 0; font-size: 30px; line-height: 1.1; font-weight: 750; }
 
-        .station { border-bottom: 1px solid var(--line); }
+        .live { display: inline-flex; align-items: center; gap: 8px; padding: 8px 11px; border: 1px solid #c9ded6; border-radius: 999px; background: #f7fbf8; color: var(--green); font-size: 12px; font-weight: 650; white-space: nowrap; }
 
-        .station-heading {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 12px;
-            padding: 15px 2px 12px;
-            color: var(--ink);
-            text-decoration: none;
-        }
+        .live::before { width: 7px; height: 7px; border-radius: 50%; background: #3a9b70; content: ""; }
 
-        .station-heading:hover .station-name { color: var(--green); text-decoration: underline; text-underline-offset: 3px; }
+        .dashboard { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(300px, .85fr); gap: 14px; }
 
-        .station-heading:focus-visible { outline: 3px solid #d59a38; outline-offset: 3px; }
+        .wind-panel, .rain-panel { min-width: 0; border: 1px solid rgba(24, 58, 55, .08); border-radius: 10px; }
 
-        .station-name { font-size: 17px; font-weight: 700; }
+        .wind-panel { position: relative; overflow: hidden; min-height: 310px; padding: 25px 28px; color: #f7fbf7; background: linear-gradient(120deg, #164f4d 0%, #236e68 59%, #43877a 100%); }
 
-        .source { display: block; margin-top: 4px; color: var(--muted); font-size: 13px; font-weight: 400; }
+        .wind-panel::after { position: absolute; right: -44px; bottom: -180px; width: 430px; height: 300px; border: 1px solid rgba(232, 247, 237, .18); border-radius: 50%; box-shadow: 0 0 0 24px rgba(232, 247, 237, .035), 0 0 0 56px rgba(232, 247, 237, .035); content: ""; }
 
-        .arrow { color: var(--green); font-size: 20px; }
+        .station-heading { position: relative; z-index: 1; display: inline-flex; align-items: center; gap: 7px; color: #dcece5; font-size: 13px; text-decoration: none; }
 
-        .readings { margin: 0; padding: 0 2px 8px; list-style: none; }
+        .station-heading:hover { color: #fff; text-decoration: underline; text-underline-offset: 3px; }
 
-        .reading { display: flex; justify-content: space-between; gap: 16px; padding: 7px 0; border-top: 1px solid #e8efeb; font-size: 14px; }
+        .station-heading:focus-visible { outline: 3px solid var(--sun); outline-offset: 4px; }
 
-        .reading-label { color: var(--muted); }
+        .station-name { font-weight: 650; }
 
-        .reading-value { font-weight: 650; font-variant-numeric: tabular-nums; text-align: right; }
+        .arrow { font-size: 15px; }
 
-        .updated { margin: 2px 2px 16px; color: var(--muted); font-size: 12px; }
+        .wind-main { position: relative; z-index: 1; display: flex; align-items: center; justify-content: space-between; gap: 24px; margin: 22px 0 24px; }
 
-        .tide { padding: 18px 2px 0; border-top: 1px solid var(--line); }
+        .wind-kicker { margin: 0 0 4px; color: #c5e0d6; font-size: 12px; }
 
-        .tide h2 { margin: 0; font-size: 19px; }
+        .wind-speed { margin: 0; font-size: clamp(42px, 7vw, 66px); font-weight: 720; line-height: 1; letter-spacing: 0; font-variant-numeric: tabular-nums; }
 
-        .tide-source { margin: 5px 0 12px; color: var(--muted); font-size: 13px; }
+        .wind-speed small { font-size: 17px; font-weight: 550; }
 
-        .tide-events { margin: 0; padding: 0; list-style: none; }
+        .wind-from { margin: 10px 0 0; color: #e2eee8; font-size: 14px; }
 
-        .tide-event { display: flex; min-height: 56px; align-items: center; justify-content: space-between; gap: 12px; border-top: 1px solid #e8efeb; }
+        .compass { position: relative; display: grid; width: 148px; aspect-ratio: 1; flex: 0 0 148px; place-items: center; border: 1px solid rgba(245, 251, 247, .34); border-radius: 50%; background: radial-gradient(circle, rgba(247, 251, 247, .14) 0 2px, transparent 3px), rgba(11, 58, 56, .13); }
 
-        .tide-kind { display: block; font-size: 14px; font-weight: 650; }
+        .compass::before, .compass::after { position: absolute; background: rgba(245, 251, 247, .2); content: ""; }
 
-        .tide-date { display: block; margin-top: 3px; color: var(--muted); font-size: 12px; text-transform: capitalize; }
+        .compass::before { width: 1px; height: 82%; }
 
-        .tide-detail { display: flex; align-items: baseline; gap: 14px; font-size: 14px; font-variant-numeric: tabular-nums; }
+        .compass::after { width: 82%; height: 1px; }
+
+        .compass-label { position: absolute; z-index: 1; color: #d7e8e0; font-size: 10px; font-weight: 700; }
+
+        .compass-n { top: 8px; }
+
+        .compass-e { right: 9px; }
+
+        .compass-s { bottom: 8px; }
+
+        .compass-w { left: 9px; }
+
+        .wind-arrow { position: relative; z-index: 2; width: 54px; height: 72px; color: #f1c764; transform: rotate(0deg); transition: transform 450ms ease; }
+
+        .readings { position: relative; z-index: 1; display: grid; grid-template-columns: repeat(3, 1fr); margin: 0; padding: 15px 0 0; border-top: 1px solid rgba(245, 251, 247, .22); list-style: none; }
+
+        .reading { min-width: 0; padding-right: 12px; }
+
+        .reading-label { display: block; color: #c5e0d6; font-size: 11px; }
+
+        .reading-value { display: block; margin-top: 5px; color: #fff; font-size: 15px; font-weight: 650; font-variant-numeric: tabular-nums; }
+
+        .updated { position: relative; z-index: 1; margin: 13px 0 0; color: #c5e0d6; font-size: 11px; }
+
+        .rain-panel { display: flex; flex-direction: column; padding: 23px 24px 18px; background: rgba(251, 252, 250, .88); }
+
+        .section-top { display: flex; align-items: start; justify-content: space-between; gap: 12px; }
+
+        .section-kicker { margin: 0 0 5px; color: var(--muted); font-size: 11px; font-weight: 700; letter-spacing: .8px; text-transform: uppercase; }
+
+        h2 { margin: 0; font-size: 19px; line-height: 1.25; }
+
+        .rain-summary { display: flex; align-items: baseline; gap: 5px; margin: 19px 0 15px; }
+
+        .rain-percent { font-size: 48px; font-weight: 730; line-height: 1; font-variant-numeric: tabular-nums; }
+
+        .rain-percent-sign { color: var(--green); font-size: 23px; font-weight: 650; }
+
+        .rain-summary-label { margin-left: 8px; color: var(--muted); font-size: 12px; }
+
+        .forecast { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); margin: auto 0 0; padding: 14px 0 0; border-top: 1px solid var(--line); list-style: none; }
+
+        .forecast-hour { min-width: 0; text-align: center; }
+
+        .forecast-time { display: block; color: var(--muted); font-size: 10px; font-variant-numeric: tabular-nums; }
+
+        .rain-icon { display: block; height: 25px; margin: 5px auto 3px; color: #478b9b; font-size: 17px; line-height: 25px; }
+
+        .forecast-probability { display: block; font-size: 12px; font-weight: 700; font-variant-numeric: tabular-nums; }
+
+        .forecast-mm { display: block; margin-top: 3px; color: var(--muted); font-size: 10px; font-variant-numeric: tabular-nums; }
+
+        .weather-status { min-height: 15px; margin: 12px 0 0; color: var(--muted); font-size: 11px; }
+
+        .tide { margin-top: 15px; padding: 21px 24px 10px; border: 1px solid rgba(24, 58, 55, .08); border-radius: 10px; background: rgba(251, 252, 250, .78); }
+
+        .tide-heading { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; }
+
+        .tide-source { margin: 0; color: var(--muted); font-size: 12px; }
+
+        .tide-events { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); margin: 15px 0 0; padding: 0; list-style: none; }
+
+        .tide-event { display: flex; min-height: 62px; align-items: center; justify-content: space-between; gap: 8px; padding: 8px 12px; border-top: 1px solid #e8efeb; }
+
+        .tide-event:nth-child(odd) { border-right: 1px solid #e8efeb; }
+
+        .tide-kind { display: block; font-size: 13px; font-weight: 700; }
+
+        .tide-date { display: block; margin-top: 3px; color: var(--muted); font-size: 11px; text-transform: capitalize; }
+
+        .tide-detail { display: flex; align-items: baseline; gap: 8px; font-size: 13px; font-variant-numeric: tabular-nums; }
 
         .tide-time { font-weight: 700; }
 
         .tide-height { color: var(--muted); }
 
-        .tide-status { margin: 10px 0 18px; color: var(--muted); font-size: 12px; line-height: 1.5; }
+        .tide-status { margin: 8px 0; color: var(--muted); font-size: 11px; line-height: 1.5; }
 
-        @media (max-width: 480px) {
-            main { width: min(100% - 28px, 620px); padding-top: 28px; }
+        @media (max-width: 700px) {
+            main { width: min(100% - 28px, 560px); padding-top: 24px; }
+            .dashboard { grid-template-columns: 1fr; }
+            .wind-panel { min-height: 290px; }
+            .rain-panel { min-height: 260px; }
+        }
+
+        @media (max-width: 420px) {
+            header { align-items: center; }
+            h1 { font-size: 25px; }
+            .live { padding: 7px 9px; font-size: 11px; }
+            .wind-panel { padding: 21px 18px; }
+            .wind-main { gap: 12px; }
+            .compass { width: 116px; flex-basis: 116px; }
+            .wind-arrow { width: 44px; height: 60px; }
+            .readings { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+            .reading { padding-right: 5px; }
+            .reading-value { font-size: 13px; }
+            .rain-panel { padding: 20px 17px 15px; }
+            .tide { padding: 19px 16px 9px; }
+            .tide-heading { align-items: start; flex-direction: column; gap: 5px; }
+            .tide-events { grid-template-columns: 1fr; }
+            .tide-event:nth-child(odd) { border-right: 0; }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after { scroll-behavior: auto !important; transition-duration: .01ms !important; animation-duration: .01ms !important; }
         }
 
         @media (prefers-reduced-motion: no-preference) {
-            .station { animation: arrive 300ms ease-out both; }
-            @keyframes arrive { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+            .wind-panel, .rain-panel, .tide { animation: arrive 420ms ease-out both; }
+            .rain-panel { animation-delay: 80ms; }
+            .tide { animation-delay: 140ms; }
+            @keyframes arrive { from { opacity: 0; transform: translateY(7px); } to { opacity: 1; transform: translateY(0); } }
         }
     </style>
 </head>
 <body>
     <main>
         <header>
-            <h1>Lysefjorden</h1>
+            <div>
+                <p class="eyebrow">Lokalt vær · Rogaland</p>
+                <h1>Lysefjorden</h1>
+            </div>
+            <span class="live">Oppdateres fortløpende</span>
         </header>
 
-        <ul class="stations" aria-label="Vindmålere">
-            <li class="station">
+        <section class="dashboard" aria-label="Værforhold ved Lysefjordbrua">
+            <article class="wind-panel" aria-labelledby="wind-title">
                 <a class="station-heading" href="https://www.vegvesen.no/trafikk/vaerveikamera/wind-272477532?lat=58.95104&amp;lng=6.11871&amp;zoom=10" target="_blank" rel="noopener noreferrer">
-                    <span class="station-name">Lysefjordbrua<span class="source">Statens vegvesen</span></span>
+                    <span class="station-name">Lysefjordbrua · Statens vegvesen</span>
                     <span class="arrow" aria-hidden="true">&#8599;</span>
                 </a>
+                <div class="wind-main">
+                    <div>
+                        <p class="wind-kicker" id="wind-title">Vind akkurat nå</p>
+                        <p class="wind-speed" id="wind-speed">- <small>m/s</small></p>
+                        <p class="wind-from" id="wind-direction">Venter på vindretning</p>
+                    </div>
+                    <div class="compass" role="img" aria-label="Vindpil viser retningen vinden blåser">
+                        <span class="compass-label compass-n">N</span>
+                        <span class="compass-label compass-e">Ø</span>
+                        <span class="compass-label compass-s">S</span>
+                        <span class="compass-label compass-w">V</span>
+                        <svg class="wind-arrow" id="wind-arrow" viewBox="0 0 48 64" aria-hidden="true">
+                            <path d="M24 2 44 31H30v30H18V31H4L24 2Z" fill="currentColor" stroke="#fff4d4" stroke-width="2" stroke-linejoin="round" />
+                        </svg>
+                    </div>
+                </div>
                 <ul class="readings" aria-label="Siste målinger">
-                    <li class="reading"><span class="reading-label">Vindstyrke</span><span class="reading-value" id="wind-speed">-</span></li>
-                    <li class="reading"><span class="reading-label">Vindretning</span><span class="reading-value" id="wind-direction">-</span></li>
                     <li class="reading"><span class="reading-label">Vindkast</span><span class="reading-value" id="wind-gust">-</span></li>
                     <li class="reading"><span class="reading-label">Sidevind</span><span class="reading-value" id="crosswind-gust">-</span></li>
+                    <li class="reading"><span class="reading-label">Vindretning</span><span class="reading-value" id="wind-bearing">-</span></li>
                 </ul>
                 <p class="updated" id="updated" role="status" aria-live="polite">Henter målinger ...</p>
-            </li>
-        </ul>
+            </article>
+
+            <article class="rain-panel" aria-labelledby="rain-title">
+                <div class="section-top">
+                    <div>
+                        <p class="section-kicker">Værmelding</p>
+                        <h2 id="rain-title">Regn de neste 6 timene</h2>
+                    </div>
+                </div>
+                <div class="rain-summary" aria-live="polite">
+                    <span class="rain-percent" id="rain-percent">-</span><span class="rain-percent-sign">%</span>
+                    <span class="rain-summary-label" id="rain-summary-label">sannsynlighet</span>
+                </div>
+                <ol class="forecast" id="forecast-hours" aria-label="Regnprognose time for time"></ol>
+                <p class="weather-status" id="weather-status" role="status" aria-live="polite">Henter værmelding ...</p>
+            </article>
+        </section>
 
         <section class="tide" aria-labelledby="tide-title">
-            <h2 id="tide-title">Flo og fjære</h2>
-            <p class="tide-source">Ved Lysefjordbrua · prognose fra Kartverket</p>
+            <div class="tide-heading">
+                <h2 id="tide-title">Flo og fjære</h2>
+                <p class="tide-source">Ved Lysefjordbrua · prognose fra Kartverket</p>
+            </div>
             <ol class="tide-events" id="tide-events" aria-label="Neste flo og fjære"></ol>
             <p class="tide-status" id="tide-status" role="status" aria-live="polite">Henter tidevann ...</p>
         </section>
@@ -159,8 +287,13 @@
                 const weather = site?.weatherData;
                 if (!weather || weather.status !== 'OK') throw new Error('Måledata er ikke tilgjengelig');
 
-                document.getElementById('wind-speed').textContent = speedText(weather.windSpeed);
-                document.getElementById('wind-direction').textContent = directionText(weather.windDirectionBearing);
+                document.getElementById('wind-speed').innerHTML = `${Number.isFinite(weather.windSpeed) ? numberFormat.format(weather.windSpeed) : '-'} <small>m/s</small>`;
+                const direction = directionText(weather.windDirectionBearing);
+                document.getElementById('wind-direction').textContent = Number.isFinite(weather.windDirectionBearing) ? `Fra ${direction} · pilen viser dit vinden blåser` : 'Venter på vindretning';
+                document.getElementById('wind-bearing').textContent = Number.isFinite(weather.windDirectionBearing) ? `${Math.round(weather.windDirectionBearing)}°` : '-';
+                if (Number.isFinite(weather.windDirectionBearing)) {
+                    document.getElementById('wind-arrow').style.transform = `rotate(${(weather.windDirectionBearing + 180) % 360}deg)`;
+                }
                 document.getElementById('wind-gust').textContent = speedText(weather.maximumWindSpeed);
                 document.getElementById('crosswind-gust').textContent = speedText(weather.windGustSpeed90);
 
@@ -176,6 +309,76 @@
 
         updateMeasurements();
         window.setInterval(updateMeasurements, 60000);
+
+        const forecastApiUrl = 'https://api.open-meteo.com/v1/forecast';
+        const forecastTimeFormat = new Intl.DateTimeFormat('nb-NO', { timeZone: 'Europe/Oslo', hour: '2-digit', minute: '2-digit' });
+        const rainAmountFormat = new Intl.NumberFormat('nb-NO', { maximumFractionDigits: 1 });
+
+        async function updateForecast() {
+            const status = document.getElementById('weather-status');
+            const list = document.getElementById('forecast-hours');
+            const percent = document.getElementById('rain-percent');
+            const summary = document.getElementById('rain-summary-label');
+
+            try {
+                const params = new URLSearchParams({
+                    latitude: '58.95104',
+                    longitude: '6.11871',
+                    hourly: 'precipitation_probability,precipitation',
+                    forecast_days: '2',
+                    timezone: 'Europe/Oslo',
+                    timeformat: 'unixtime'
+                });
+                const response = await fetch(`${forecastApiUrl}?${params}`, { cache: 'no-store' });
+                if (!response.ok) throw new Error(`HTTP ${response.status}`);
+
+                const result = await response.json();
+                const times = result.hourly?.time;
+                const probabilities = result.hourly?.precipitation_probability;
+                const amounts = result.hourly?.precipitation;
+                if (!Array.isArray(times) || !Array.isArray(probabilities) || !Array.isArray(amounts)) throw new Error('Ufullstendig værmelding');
+
+                const now = Date.now() / 1000;
+                const upcoming = times.map((time, index) => ({ time, probability: probabilities[index], amount: amounts[index] }))
+                    .filter(hour => hour.time >= now && Number.isFinite(hour.probability) && Number.isFinite(hour.amount))
+                    .slice(0, 6);
+                if (upcoming.length === 0) throw new Error('Ingen prognosetimer tilgjengelig');
+
+                const maxProbability = Math.max(...upcoming.map(hour => hour.probability));
+                percent.textContent = String(maxProbability);
+                summary.textContent = maxProbability >= 60 ? 'høyeste risiko' : maxProbability >= 30 ? 'mulig regn' : 'liten regnfare';
+                list.replaceChildren();
+                for (const hour of upcoming) {
+                    const item = document.createElement('li');
+                    item.className = 'forecast-hour';
+                    const time = document.createElement('time');
+                    time.className = 'forecast-time';
+                    time.dateTime = new Date(hour.time * 1000).toISOString();
+                    time.textContent = forecastTimeFormat.format(new Date(hour.time * 1000));
+                    const icon = document.createElement('span');
+                    icon.className = 'rain-icon';
+                    icon.setAttribute('aria-hidden', 'true');
+                    icon.textContent = hour.amount >= 0.1 ? String.fromCodePoint(0x1F327) : String.fromCodePoint(0x2600);
+                    const chance = document.createElement('span');
+                    chance.className = 'forecast-probability';
+                    chance.textContent = `${hour.probability}%`;
+                    const amount = document.createElement('span');
+                    amount.className = 'forecast-mm';
+                    amount.textContent = `${rainAmountFormat.format(hour.amount)} mm`;
+                    item.append(time, icon, chance, amount);
+                    list.append(item);
+                }
+                status.textContent = `Prognose fra Open-Meteo · oppdatert ${new Date().toLocaleTimeString('nb-NO', { hour: '2-digit', minute: '2-digit' })}`;
+            } catch {
+                percent.textContent = '-';
+                summary.textContent = 'kunne ikke hentes';
+                list.replaceChildren();
+                status.textContent = 'Klarte ikke å hente værmelding akkurat nå.';
+            }
+        }
+
+        updateForecast();
+        window.setInterval(updateForecast, 1800000);
 
         const tideApiUrl = 'https://vannstand.kartverket.no/tideapi.php';
         const tideHeightFormat = new Intl.NumberFormat('nb-NO', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
