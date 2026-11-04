@@ -5,57 +5,21 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Ladetid</title>
   <style>
-    * {
-      box-sizing: border-box;
-    }
-
-    html, body {
-      margin: 0;
-      padding: 0;
-      height: 100%;
-      font-family: Arial, sans-serif;
-      background-color: #f0f0f0;
-    }
-
-    .container {
-      min-height: 100vh;
-      background: white;
-      padding: 16px 20px;
-      display: flex;
-      flex-direction: column;
-    }
-
-    label {
-      font-weight: bold;
-      margin-top: 16px;
-      font-size: 14px;
-    }
-
-    input[type="range"] {
-      width: 100%;
-      margin-top: 6px;
-    }
-
-    .slider-label {
-      text-align: center;
-      font-size: 14px;
-      margin-top: 4px;
-    }
-
-    #result {
-      margin-top: 24px;
-      font-size: 24px;
-      font-weight: 800;
-      text-align: center;
-      color: #222;
-    }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; min-height: 100%; font-family: Arial, sans-serif; background: #f0f0f0; }
+    .container { min-height: 100vh; background: white; padding: 16px 20px; display: flex; flex-direction: column; }
+    label { font-weight: bold; margin-top: 16px; font-size: 14px; }
+    input[type="range"] { width: 100%; margin-top: 6px; accent-color: #1687e8; }
+    .slider-label { text-align: center; font-size: 14px; margin-top: 4px; }
+    #result { margin-top: 24px; font-size: 24px; font-weight: 800; text-align: center; color: #222; }
+    .hint { margin-top: 12px; font-size: 12px; color: #666; text-align: center; line-height: 1.5; }
   </style>
 </head>
 <body>
   <div class="container">
     <label for="batteryWh">Batteri Wh:</label>
     <div class="slider-label" id="batteryWh-verdi">545 Wh</div>
-    <input type="range" id="batteryWh" min="100" max="2000" step="5" value="545" />
+    <input type="range" id="batteryWh" min="20" max="2000" step="5" value="545" />
 
     <label for="from">Startprosent (%):</label>
     <div class="slider-label" id="from-verdi">50%</div>
@@ -65,42 +29,41 @@
     <div class="slider-label" id="to-verdi">80%</div>
     <input type="range" id="to" min="0" max="100" step="1" value="80" />
 
-    <div id="result"></div>
+    <label for="chargePower">Ladeeffekt (W):</label>
+    <div class="slider-label" id="chargePower-verdi">144 W</div>
+    <input type="range" id="chargePower" min="10" max="500" step="1" value="144" />
+
+    <div id="result" aria-live="polite"></div>
+    <div class="hint">Beregningen antar 85 % virkningsgrad. Faktisk ladetid kan variere, særlig mot fullt batteri. Bruk laderens reelle ladeeffekt i watt.</div>
   </div>
 
   <script>
     const batterySlider = document.getElementById('batteryWh');
     const fromSlider = document.getElementById('from');
     const toSlider = document.getElementById('to');
-
+    const powerSlider = document.getElementById('chargePower');
     const batteryLabel = document.getElementById('batteryWh-verdi');
     const fromLabel = document.getElementById('from-verdi');
     const toLabel = document.getElementById('to-verdi');
-
+    const powerLabel = document.getElementById('chargePower-verdi');
     const result = document.getElementById('result');
-    const chargePower = 144;
 
     function beregn() {
-      const batteryWh = parseFloat(batterySlider.value);
-      const from = parseFloat(fromSlider.value);
-      const to = parseFloat(toSlider.value);
+      const batteryWh = Number(batterySlider.value);
+      const from = Number(fromSlider.value);
+      const to = Number(toSlider.value);
+      const chargePower = Number(powerSlider.value);
 
       if (from >= to) {
-        result.textContent = "Startprosent må være mindre enn målprosent.";
+        result.textContent = 'Startprosent må være mindre enn målprosent.';
         return;
       }
 
-      const efficiency = 1.13;
-      const neededWh = batteryWh * ((to - from) / 100) / efficiency;
-      const chargeTimeHours = neededWh / chargePower;
-
-      let timer = Math.floor(chargeTimeHours);
-      let minutter = Math.round((chargeTimeHours - timer) * 60);
-      if (minutter === 60) {
-        timer += 1;
-        minutter = 0;
-      }
-
+      const efficiency = 0.85;
+      const neededWh = batteryWh * ((to - from) / 100);
+      const totalMinutes = Math.round(neededWh / (chargePower * efficiency) * 60);
+      const timer = Math.floor(totalMinutes / 60);
+      const minutter = totalMinutes % 60;
       result.textContent = `Ladetid: ${timer} t ${minutter} min`;
     }
 
@@ -108,13 +71,13 @@
       batteryLabel.textContent = `${batterySlider.value} Wh`;
       fromLabel.textContent = `${fromSlider.value}%`;
       toLabel.textContent = `${toSlider.value}%`;
+      powerLabel.textContent = `${powerSlider.value} W`;
       beregn();
     }
 
-    batterySlider.addEventListener('input', oppdaterOgBeregn);
-    fromSlider.addEventListener('input', oppdaterOgBeregn);
-    toSlider.addEventListener('input', oppdaterOgBeregn);
-
+    [batterySlider, fromSlider, toSlider, powerSlider].forEach(slider => {
+      slider.addEventListener('input', oppdaterOgBeregn);
+    });
     oppdaterOgBeregn();
   </script>
 </body>
